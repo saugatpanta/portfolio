@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getFirestore, collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy } from 'firebase/firestore'
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'firebase/auth'
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -14,6 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 const auth = getAuth(app)
+const storage = getStorage(app)
 
 // Add your allowed email here
 const ALLOWED_ADMIN_EMAILS = [
@@ -21,8 +23,16 @@ const ALLOWED_ADMIN_EMAILS = [
   'saugatpanta123email@gmail.com'
 ]
 
+// Global toast state to prevent duplicates
+let toastVisible = false
+
 // Toast notification function
 const showToast = (message, type = 'error') => {
+  // Prevent multiple toasts
+  if (toastVisible) return
+  
+  toastVisible = true
+
   // Remove existing toasts
   const existingToasts = document.querySelectorAll('.custom-toast')
   existingToasts.forEach(toast => toast.remove())
@@ -124,6 +134,7 @@ const showToast = (message, type = 'error') => {
     if (toast.parentElement) {
       toast.remove()
     }
+    toastVisible = false
   }, 5000)
 }
 
@@ -139,13 +150,11 @@ export const firebaseClient = {
               resolve(isAllowed)
             } catch (error) {
               console.error('Auth check error:', error)
-              showToast('Authentication check failed', 'error')
               resolve(false)
             }
           },
           (error) => {
             console.error('Auth state error:', error)
-            showToast('Authentication error occurred', 'error')
             reject(error)
           }
         )
@@ -182,7 +191,6 @@ export const firebaseClient = {
         switch (error.code) {
           case 'auth/popup-closed-by-user':
             // User closed popup - no action needed
-            showToast('Login cancelled', 'info')
             break
           case 'auth/popup-blocked':
             showToast('Popup was blocked. Please allow popups for this site and try again.', 'warning')
@@ -235,6 +243,32 @@ export const firebaseClient = {
     }
   },
 
+  storage: {
+    // Upload image to Firebase Storage
+    uploadImage: async (file, path = 'images') => {
+      try {
+        const fileRef = ref(storage, `${path}/${Date.now()}_${file.name}`)
+        const snapshot = await uploadBytes(fileRef, file)
+        const downloadURL = await getDownloadURL(snapshot.ref)
+        return downloadURL
+      } catch (error) {
+        console.error('Error uploading image:', error)
+        throw new Error('Failed to upload image')
+      }
+    },
+
+    // Delete image from Firebase Storage
+    deleteImage: async (imageUrl) => {
+      try {
+        const imageRef = ref(storage, imageUrl)
+        await deleteObject(imageRef)
+      } catch (error) {
+        console.error('Error deleting image:', error)
+        throw new Error('Failed to delete image')
+      }
+    }
+  },
+
   entities: {
     Project: {
       list: (orderByField = 'order') => getCollection('projects', orderByField),
@@ -272,6 +306,63 @@ export const firebaseClient = {
       create: (data) => createDocument('blog_posts', data),
       update: (id, data) => updateDocument('blog_posts', id, data),
       delete: (id) => deleteDocument('blog_posts', id)
+    },
+
+    ProfileImage: {
+      get: async () => {
+        try {
+          const data = await getDocument('site_config', 'profile_images');
+          return data;
+        } catch (error) {
+          // Return empty object if document doesn't exist or permission denied
+          console.log('Profile image document not found or no permission, returning empty');
+          return { profileImage: '' };
+        }
+      },
+      update: (data) => updateDocument('site_config', 'profile_images', data),
+      create: (data) => createDocument('site_config', { id: 'profile_images', ...data })
+    },
+
+    ContactInfo: {
+      get: async () => {
+        try {
+          const data = await getDocument('site_config', 'contact_info');
+          if (data && data.id) {
+            return data;
+          }
+          return null;
+        } catch (error) {
+          console.log('Contact info document not found or error:', error);
+          return null;
+        }
+      },
+      update: async (data) => {
+        try {
+          // First check if document exists
+          const existing = await getDocument('site_config', 'contact_info');
+          if (existing) {
+            // Update existing document
+            return await updateDocument('site_config', 'contact_info', data);
+          } else {
+            // Create new document
+            return await createDocument('site_config', { 
+              id: 'contact_info', 
+              ...data,
+              created_at: new Date(),
+              updated_at: new Date()
+            });
+          }
+        } catch (error) {
+          console.error('Error in ContactInfo.update:', error);
+          throw error;
+        }
+      },
+      create: (data) => createDocument('site_config', { 
+        id: 'contact_info', 
+        ...data,
+        created_at: new Date(),
+        updated_at: new Date()
+      })
     }
   },
 
@@ -296,7 +387,6 @@ async function getCollection(collectionName, orderByField = 'created_date') {
     }))
   } catch (error) {
     console.error(`Error getting collection ${collectionName}:`, error)
-    showToast(`Failed to load ${collectionName}`, 'error')
     throw error
   }
 }
@@ -307,26 +397,31 @@ async function getFilteredCollection(collectionName, filters, orderByField = 'cr
       ? [orderByField.slice(1), 'desc'] 
       : [orderByField, 'asc']
     
-    let q = query(collection(db, collectionName))
-    
-    // Add filters
-    Object.entries(filters).forEach(([key, value]) => {
-      q = query(q, where(key, '==', value))
-    })
-    
-    // Add ordering
-    q = query(q, orderBy(field, direction))
-    
+    // Get all documents and filter in memory to avoid composite index issues
+    const q = query(collection(db, collectionName), orderBy(field, direction))
     const querySnapshot = await getDocs(q)
-    return querySnapshot.docs.map(doc => ({ 
+    
+    // Filter results in memory
+    let results = querySnapshot.docs.map(doc => ({ 
       id: doc.id, 
       ...doc.data(),
       created_date: doc.data().created_date?.toDate?.() || new Date(),
       published_date: doc.data().published_date?.toDate?.() || new Date()
     }))
+    
+    // Apply filters manually
+    Object.entries(filters).forEach(([key, value]) => {
+      results = results.filter(item => item[key] === value)
+    })
+    
+    // Apply limit
+    if (limit) {
+      results = results.slice(0, limit)
+    }
+    
+    return results
   } catch (error) {
     console.error(`Error getting filtered collection ${collectionName}:`, error)
-    showToast(`Failed to load ${collectionName}`, 'error')
     throw error
   }
 }
@@ -344,11 +439,9 @@ async function getDocument(collectionName, id) {
         published_date: docSnap.data().published_date?.toDate?.() || new Date()
       }
     }
-    showToast('Document not found', 'warning')
     return null
   } catch (error) {
     console.error(`Error getting document ${collectionName}/${id}:`, error)
-    showToast('Failed to load document', 'error')
     throw error
   }
 }
@@ -360,11 +453,9 @@ async function createDocument(collectionName, data) {
       created_date: new Date(),
       updated_date: new Date()
     })
-    showToast(`${collectionName.slice(0, -1)} created successfully`, 'success')
     return { id: docRef.id, ...data }
   } catch (error) {
     console.error(`Error creating document in ${collectionName}:`, error)
-    showToast(`Failed to create ${collectionName.slice(0, -1)}`, 'error')
     throw error
   }
 }
@@ -376,11 +467,9 @@ async function updateDocument(collectionName, id, data) {
       ...data,
       updated_date: new Date()
     })
-    showToast(`${collectionName.slice(0, -1)} updated successfully`, 'success')
     return { id, ...data }
   } catch (error) {
     console.error(`Error updating document ${collectionName}/${id}:`, error)
-    showToast(`Failed to update ${collectionName.slice(0, -1)}`, 'error')
     throw error
   }
 }
@@ -389,11 +478,9 @@ async function deleteDocument(collectionName, id) {
   try {
     const docRef = doc(db, collectionName, id)
     await deleteDoc(docRef)
-    showToast(`${collectionName.slice(0, -1)} deleted successfully`, 'success')
     return { id }
   } catch (error) {
     console.error(`Error deleting document ${collectionName}/${id}:`, error)
-    showToast(`Failed to delete ${collectionName.slice(0, -1)}`, 'error')
     throw error
   }
 }

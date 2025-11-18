@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Pencil, Trash2, Eye, FileText } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -246,6 +246,12 @@ export default function BlogManager() {
             <DialogTitle>
               {editingPost ? "Edit Blog Post" : "Create New Blog Post"}
             </DialogTitle>
+            <DialogDescription>
+              {editingPost 
+                ? "Update your blog post details below. Changes will be saved immediately." 
+                : "Fill in the details to create a new blog post. All fields marked with * are required."
+              }
+            </DialogDescription>
           </DialogHeader>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>

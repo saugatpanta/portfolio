@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { firebaseClient } from "@/api/firebaseClient";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { LogOut, Home, AlertCircle } from "lucide-react";
+import { LogOut, Home, AlertCircle, Image, Mail } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -11,6 +11,8 @@ import ExperienceManager from "../components/admin/ExperienceManager";
 import SkillsManager from "../components/admin/SkillsManager";
 import MessagesManager from "../components/admin/MessagesManager";
 import BlogManager from "../components/admin/BlogManager";
+import ProfileManager from "../components/admin/ProfileManager";
+import ContactManager from "../components/admin/ContactManager"; // Add this import
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -28,8 +30,7 @@ export default function Admin() {
         } else {
           setIsAuthenticated(true);
           setIsAllowed(true);
-          // Get current user email for display
-          const user = firebaseClient.auth.currentUser;
+          const user = firebaseClient.auth.getCurrentUser();
           if (user) {
             setUserEmail(user.email);
           }
@@ -58,7 +59,7 @@ export default function Admin() {
   }
 
   if (!isAuthenticated) {
-    return null; // Will redirect to login
+    return null;
   }
 
   if (!isAllowed) {
@@ -115,15 +116,31 @@ export default function Admin() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <Tabs defaultValue="blog" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+        {/* Tabs - Updated to include Contact */}
+        <Tabs defaultValue="profile" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <Image className="w-4 h-4" />
+              Profile
+            </TabsTrigger>
+            <TabsTrigger value="contact" className="flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              Contact
+            </TabsTrigger>
             <TabsTrigger value="blog">Blog</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
             <TabsTrigger value="experience">Experience</TabsTrigger>
             <TabsTrigger value="skills">Skills</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="profile">
+            <ProfileManager />
+          </TabsContent>
+
+          <TabsContent value="contact">
+            <ContactManager />
+          </TabsContent>
 
           <TabsContent value="blog">
             <BlogManager />

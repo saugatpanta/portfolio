@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { firebaseClient } from "@/api/firebaseClient";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Mail, MessageSquare, Send, CheckCircle, Github, Linkedin, Twitter, AlertCircle } from "lucide-react";
+import { Mail, MessageSquare, Send, CheckCircle, Github, Linkedin, Twitter, AlertCircle, Phone, MapPin, Globe } from "lucide-react";
 import { toast } from "sonner";
 
 const VALIDATION_RULES = {
@@ -26,6 +26,22 @@ export default function Contact() {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [submitted, setSubmitted] = useState(false);
+
+  // Fetch contact info from Firebase
+  const { data: contactInfo, isLoading } = useQuery({
+    queryKey: ['contact-info'],
+    queryFn: async () => {
+      try {
+        const data = await firebaseClient.entities.ContactInfo.get();
+        console.log('Contact info loaded:', data);
+        return data || {};
+      } catch (error) {
+        console.error('Error loading contact info:', error);
+        return {};
+      }
+    },
+    refetchOnWindowFocus: false
+  });
 
   const sendMessageMutation = useMutation({
     mutationFn: (data) => firebaseClient.entities.Message.create(data),
@@ -119,6 +135,18 @@ export default function Contact() {
 
   const hasError = (field) => touched[field] && errors[field];
 
+  // Check if we have any contact info
+  const hasContactInfo = contactInfo && Object.keys(contactInfo).length > 0;
+  const hasBasicInfo = contactInfo?.email || contactInfo?.phone || contactInfo?.address || contactInfo?.website;
+  const hasSocialInfo = contactInfo?.github || contactInfo?.linkedin || contactInfo?.twitter;
+
+  console.log('Contact info state:', {
+    hasContactInfo,
+    hasBasicInfo,
+    hasSocialInfo,
+    contactInfo
+  });
+
   return (
     <div className="min-h-screen py-20 px-6">
       <div className="max-w-5xl mx-auto">
@@ -132,7 +160,7 @@ export default function Contact() {
             Get In <span className="gradient-text">Touch</span>
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Have a project in mind or just want to chat? I'd love to hear from you!
+            {contactInfo?.description || "Have a project in mind or just want to chat? I'd love to hear from you!"}
           </p>
         </motion.div>
 
@@ -144,18 +172,99 @@ export default function Contact() {
             transition={{ delay: 0.2 }}
             className="space-y-8"
           >
+            {/* Basic Contact Card - Always show but with conditional content */}
             <Card className="p-8 glass border-0">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                  <Mail className="w-6 h-6 text-blue-500" />
+              <div className="space-y-6">
+                {/* Email */}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
+                    <Mail className="w-6 h-6 text-blue-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold">Email</h3>
+                    {contactInfo?.email ? (
+                      <a 
+                        href={`mailto:${contactInfo.email}`}
+                        className="text-slate-600 dark:text-slate-400 hover:text-blue-500 transition-colors"
+                      >
+                        {contactInfo.email}
+                      </a>
+                    ) : (
+                      <p className="text-slate-400 dark:text-slate-600 italic">
+                        Email not configured
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold">Email</h3>
-                  <p className="text-slate-600 dark:text-slate-400">your.email@example.com</p>
+
+                {/* Phone */}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
+                    <Phone className="w-6 h-6 text-green-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold">Phone</h3>
+                    {contactInfo?.phone ? (
+                      <a 
+                        href={`tel:${contactInfo.phone}`}
+                        className="text-slate-600 dark:text-slate-400 hover:text-green-500 transition-colors"
+                      >
+                        {contactInfo.phone}
+                      </a>
+                    ) : (
+                      <p className="text-slate-400 dark:text-slate-600 italic">
+                        Phone not configured
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Address */}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center">
+                    <MapPin className="w-6 h-6 text-purple-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold">Location</h3>
+                    {contactInfo?.address ? (
+                      <p className="text-slate-600 dark:text-slate-400">
+                        {contactInfo.address}
+                      </p>
+                    ) : (
+                      <p className="text-slate-400 dark:text-slate-600 italic">
+                        Location not configured
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Website */}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center">
+                    <Globe className="w-6 h-6 text-orange-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold">Website</h3>
+                    {contactInfo?.website ? (
+                      <a 
+                        href={contactInfo.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-slate-600 dark:text-slate-400 hover:text-orange-500 transition-colors"
+                      >
+                        {contactInfo.website.replace(/^https?:\/\//, '')}
+                      </a>
+                    ) : (
+                      <p className="text-slate-400 dark:text-slate-600 italic">
+                        Website not configured
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </Card>
 
+            {/* Social Media Card - Always show but with conditional content */}
             <Card className="p-8 glass border-0">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center">
@@ -163,44 +272,82 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-bold">Social Media</h3>
-                  <p className="text-slate-600 dark:text-slate-400">Let's connect online</p>
+                  <p className="text-slate-600 dark:text-slate-400">
+                    {hasSocialInfo ? "Let's connect online" : "Social links not configured"}
+                  </p>
                 </div>
               </div>
               
               <div className="flex gap-4">
-                <a
-                  href="https://github.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all"
-                >
-                  <Github className="w-5 h-5" />
-                </a>
-                <a
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all"
-                >
-                  <Linkedin className="w-5 h-5" />
-                </a>
-                <a
-                  href="https://twitter.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all"
-                >
-                  <Twitter className="w-5 h-5" />
-                </a>
+                {contactInfo?.github ? (
+                  <a
+                    href={contactInfo.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-gray-700 hover:text-white transition-all"
+                    title="GitHub"
+                  >
+                    <Github className="w-5 h-5" />
+                  </a>
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center opacity-50" title="GitHub not configured">
+                    <Github className="w-5 h-5 text-slate-400" />
+                  </div>
+                )}
+
+                {contactInfo?.linkedin ? (
+                  <a
+                    href={contactInfo.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
+                    title="LinkedIn"
+                  >
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center opacity-50" title="LinkedIn not configured">
+                    <Linkedin className="w-5 h-5 text-slate-400" />
+                  </div>
+                )}
+
+                {contactInfo?.twitter ? (
+                  <a
+                    href={contactInfo.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-blue-400 hover:text-white transition-all"
+                    title="Twitter"
+                  >
+                    <Twitter className="w-5 h-5" />
+                  </a>
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center opacity-50" title="Twitter not configured">
+                    <Twitter className="w-5 h-5 text-slate-400" />
+                  </div>
+                )}
               </div>
+
+              {!hasSocialInfo && (
+                <p className="text-xs text-slate-500 mt-4 text-center">
+                  Configure social links in the admin panel
+                </p>
+              )}
             </Card>
 
+            {/* Availability Card - Always show */}
             <Card className="p-8 glass border-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10">
-              <h3 className="font-bold text-lg mb-2">Open to Opportunities</h3>
+              <h3 className="font-bold text-lg mb-2">
+                {contactInfo?.availability || 'Open to Opportunities'}
+              </h3>
               <p className="text-slate-600 dark:text-slate-400">
-                I'm currently available for freelance work and full-time positions.
-                Let's discuss how we can work together!
+                {contactInfo?.description || "I'm currently available for freelance work and full-time positions. Let's discuss how we can work together!"}
               </p>
+              {!hasContactInfo && (
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-3">
+                  💡 Configure your contact information in the admin panel
+                </p>
+              )}
             </Card>
           </motion.div>
 
@@ -313,7 +460,7 @@ export default function Contact() {
                       id="subject"
                       name="subject"
                       value={formData.subject}
-                      onChange={handleChange}
+                      onChange={(e) => handleChange(e)}
                       onBlur={handleBlur}
                       placeholder="Project inquiry"
                       className={`glass transition-all ${

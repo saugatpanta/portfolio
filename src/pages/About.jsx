@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { firebaseClient } from "@/api/firebaseClient";
 import { useQuery } from "@tanstack/react-query";
@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 const SkillBar = ({ skill, index }) => {
-  const ref = React.useRef(null);
+  const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
@@ -22,7 +22,7 @@ const SkillBar = ({ skill, index }) => {
         duration: 0.5,
         ease: [0.25, 0.1, 0.25, 1]
       }}
-      className="mb-6"
+      className="mb-4 sm:mb-6"
     >
       <Link to={createPageUrl("Projects") + `?skill=${encodeURIComponent(skill.name)}`}>
         <motion.div
@@ -30,12 +30,12 @@ const SkillBar = ({ skill, index }) => {
           className="cursor-pointer group"
         >
           <div className="flex justify-between mb-2">
-            <span className="font-medium text-slate-700 dark:text-slate-300 group-hover:text-blue-500 transition-colors flex items-center gap-2">
+            <span className="font-medium text-slate-700 dark:text-slate-300 group-hover:text-blue-500 transition-colors flex items-center gap-2 text-sm sm:text-base">
               {skill.name}
               <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
             </span>
             <motion.span 
-              className="text-sm text-slate-500 font-semibold"
+              className="text-xs sm:text-sm text-slate-500 font-semibold"
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : { opacity: 0 }}
               transition={{ delay: index * 0.08 + 0.8, duration: 0.3 }}
@@ -43,7 +43,7 @@ const SkillBar = ({ skill, index }) => {
               {skill.proficiency}%
             </motion.span>
           </div>
-          <div className="h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden relative">
+          <div className="h-2 sm:h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden relative">
             {/* Background shimmer effect */}
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
@@ -78,7 +78,7 @@ const SkillBar = ({ skill, index }) => {
               
               {/* Animated glow */}
               <motion.div
-                className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white/30 to-transparent"
+                className="absolute right-0 top-0 bottom-0 w-4 sm:w-8 bg-gradient-to-l from-white/30 to-transparent"
                 initial={{ opacity: 0 }}
                 animate={isInView ? { opacity: [0, 1, 0] } : { opacity: 0 }}
                 transition={{
@@ -96,7 +96,7 @@ const SkillBar = ({ skill, index }) => {
 };
 
 const SkillCategory = ({ category, categorySkills, index }) => {
-  const ref = React.useRef(null);
+  const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
@@ -118,16 +118,16 @@ const SkillCategory = ({ category, categorySkills, index }) => {
         ease: [0.25, 0.1, 0.25, 1]
       }}
     >
-      <Card className="p-6 glass border-0 h-full hover:shadow-xl transition-shadow duration-300">
+      <Card className="p-4 sm:p-6 glass border-0 h-full hover:shadow-lg sm:hover:shadow-xl transition-shadow duration-300">
         <motion.h3 
-          className="text-xl font-bold mb-6 capitalize bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+          className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 capitalize bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
           initial={{ opacity: 0, y: -10 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -10 }}
           transition={{ delay: index * 0.15 + 0.2, duration: 0.4 }}
         >
           {category.replace('_', ' ')}
         </motion.h3>
-        <p className="text-xs text-slate-500 mb-4">Click a skill to see related projects</p>
+        <p className="text-xs text-slate-500 mb-3 sm:mb-4">Click a skill to see related projects</p>
         {categorySkills.map((skill, i) => (
           <SkillBar key={skill.id} skill={skill} index={i} />
         ))}
@@ -172,33 +172,33 @@ export default function About() {
   ];
 
   return (
-    <div className="min-h-screen py-20 px-6">
+    <div className="min-h-screen py-12 sm:py-16 lg:py-20 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-20"
+          className="text-center mb-12 sm:mb-16 lg:mb-20"
         >
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6">
             About <span className="gradient-text">Me</span>
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto px-4">
             I'm a passionate developer with expertise in building modern web applications.
             I love turning complex problems into simple, beautiful, and intuitive solutions.
           </p>
         </motion.div>
 
         {/* Bio Section */}
-        <div className="grid lg:grid-cols-2 gap-12 mb-20">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 mb-12 sm:mb-16 lg:mb-20">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <Card className="p-8 glass border-0">
-              <h2 className="text-2xl font-bold mb-6">My Story</h2>
-              <div className="space-y-4 text-slate-600 dark:text-slate-400">
+            <Card className="p-4 sm:p-6 lg:p-8 glass border-0">
+              <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">My Story</h2>
+              <div className="space-y-3 sm:space-y-4 text-slate-600 dark:text-slate-400 text-sm sm:text-base">
                 <p>
                   I started my journey in web development back in 2018, and it's been an incredible
                   ride ever since. What began as curiosity turned into a deep passion for creating
@@ -214,7 +214,7 @@ export default function About() {
                   open-source projects, or sharing knowledge with the developer community.
                 </p>
               </div>
-              <Button className="mt-6 gap-2 bg-blue-500 hover:bg-blue-600">
+              <Button className="mt-4 sm:mt-6 gap-2 bg-blue-500 hover:bg-blue-600 w-full sm:w-auto">
                 <Download className="w-4 h-4" />
                 Download Resume
               </Button>
@@ -227,9 +227,9 @@ export default function About() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <Card className="p-8 glass border-0">
-              <h2 className="text-2xl font-bold mb-6">Journey Timeline</h2>
-              <div className="space-y-6">
+            <Card className="p-4 sm:p-6 lg:p-8 glass border-0">
+              <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Journey Timeline</h2>
+              <div className="space-y-4 sm:space-y-6">
                 {timeline.map((item, index) => (
                   <motion.div
                     key={index}
@@ -237,18 +237,18 @@ export default function About() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1 }}
-                    className="relative pl-8 pb-6 border-l-2 border-blue-500/30 last:border-0 last:pb-0"
+                    className="relative pl-6 sm:pl-8 pb-4 sm:pb-6 border-l-2 border-blue-500/30 last:border-0 last:pb-0"
                   >
                     <motion.div 
-                      className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-500 border-4 border-white dark:border-slate-900"
+                      className="absolute -left-[7px] sm:-left-[9px] top-0 w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-blue-500 border-2 sm:border-4 border-white dark:border-slate-900"
                       initial={{ scale: 0 }}
                       whileInView={{ scale: 1 }}
                       viewport={{ once: true }}
                       transition={{ delay: index * 0.1 + 0.2, type: "spring", stiffness: 200 }}
                     />
-                    <div className="text-sm font-semibold text-blue-500 mb-1">{item.year}</div>
-                    <h3 className="font-bold text-lg mb-1">{item.title}</h3>
-                    <p className="text-slate-600 dark:text-slate-400 text-sm">{item.description}</p>
+                    <div className="text-xs sm:text-sm font-semibold text-blue-500 mb-1">{item.year}</div>
+                    <h3 className="font-bold text-base sm:text-lg mb-1">{item.title}</h3>
+                    <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm">{item.description}</p>
                   </motion.div>
                 ))}
               </div>
@@ -263,9 +263,9 @@ export default function About() {
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
         >
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <motion.h2 
-              className="text-4xl font-bold mb-4"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -274,7 +274,7 @@ export default function About() {
               Technical <span className="gradient-text">Skills</span>
             </motion.h2>
             <motion.p
-              className="text-slate-600 dark:text-slate-400"
+              className="text-slate-600 dark:text-slate-400 text-sm sm:text-base"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -284,7 +284,7 @@ export default function About() {
             </motion.p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {Object.entries(groupedSkills).map(([category, categorySkills], index) => (
               <SkillCategory
                 key={category}
@@ -301,9 +301,9 @@ export default function About() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-20"
+            className="text-center py-12 sm:py-20"
           >
-            <p className="text-lg text-slate-600 dark:text-slate-400">
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400">
               No skills added yet. Add some from the Admin Dashboard!
             </p>
           </motion.div>
