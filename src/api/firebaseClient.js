@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app'
-import { getFirestore, collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy } from 'firebase/firestore'
+import { getFirestore, collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, setDoc } from 'firebase/firestore'
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'firebase/auth'
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
+import { uploadToCloudinary, deleteFromCloudinary, getOptimizedImageUrl } from './cloudinary';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,7 +15,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 const auth = getAuth(app)
-const storage = getStorage(app)
 
 // Add your allowed email here
 const ALLOWED_ADMIN_EMAILS = [
@@ -244,28 +243,34 @@ export const firebaseClient = {
   },
 
   storage: {
-    // Upload image to Firebase Storage
-    uploadImage: async (file, path = 'images') => {
+    // Upload image to Cloudinary
+    uploadImage: async (file, path = 'portfolio') => {
       try {
-        const fileRef = ref(storage, `${path}/${Date.now()}_${file.name}`)
-        const snapshot = await uploadBytes(fileRef, file)
-        const downloadURL = await getDownloadURL(snapshot.ref)
-        return downloadURL
+        console.log('Starting Cloudinary upload...', file.name, file.size);
+        const imageUrl = await uploadToCloudinary(file);
+        console.log('Cloudinary upload successful:', imageUrl);
+        return imageUrl;
       } catch (error) {
-        console.error('Error uploading image:', error)
-        throw new Error('Failed to upload image')
+        console.error('Cloudinary upload error:', error);
+        throw new Error(`Failed to upload image: ${error.message}`);
       }
     },
 
-    // Delete image from Firebase Storage
+    // Delete image from Cloudinary
     deleteImage: async (imageUrl) => {
       try {
-        const imageRef = ref(storage, imageUrl)
-        await deleteObject(imageRef)
+        await deleteFromCloudinary(imageUrl);
+        console.log('Cloudinary delete successful');
       } catch (error) {
-        console.error('Error deleting image:', error)
-        throw new Error('Failed to delete image')
+        console.error('Cloudinary delete error:', error);
+        // Don't throw error for deletion failures
+        console.warn('Could not delete image from Cloudinary, continuing...');
       }
+    },
+
+    // Get optimized image URL
+    getOptimizedImage: (url, options = {}) => {
+      return getOptimizedImageUrl(url, options);
     }
   },
 
@@ -311,16 +316,59 @@ export const firebaseClient = {
     ProfileImage: {
       get: async () => {
         try {
-          const data = await getDocument('site_config', 'profile_images');
-          return data;
+          console.log('Fetching profile image...')
+          const docRef = doc(db, 'site_config', 'profile_image')
+          const docSnap = await getDoc(docRef)
+          
+          if (docSnap.exists()) {
+            const data = docSnap.data()
+            console.log('Profile image found:', data)
+            return data
+          } else {
+            console.log('No profile image document found')
+            return { profileImage: '' }
+          }
         } catch (error) {
-          // Return empty object if document doesn't exist or permission denied
-          console.log('Profile image document not found or no permission, returning empty');
-          return { profileImage: '' };
+          console.error('Error loading profile image:', error)
+          return { profileImage: '' }
         }
       },
-      update: (data) => updateDocument('site_config', 'profile_images', data),
-      create: (data) => createDocument('site_config', { id: 'profile_images', ...data })
+      
+      update: async (data) => {
+        try {
+          console.log('Updating profile image with data:', data)
+          const docRef = doc(db, 'site_config', 'profile_image')
+          
+          // Use setDoc with merge: true to create or update the document
+          await setDoc(docRef, {
+            ...data,
+            updated_at: new Date()
+          }, { merge: true })
+          
+          console.log('Profile image updated successfully')
+          return data
+        } catch (error) {
+          console.error('Error updating profile image:', error)
+          throw new Error(`Failed to update profile image: ${error.message}`)
+        }
+      },
+      
+      create: async (data) => {
+        try {
+          console.log('Creating profile image document:', data)
+          const docRef = doc(db, 'site_config', 'profile_image')
+          await setDoc(docRef, {
+            ...data,
+            created_at: new Date(),
+            updated_at: new Date()
+          })
+          console.log('Profile image document created successfully')
+          return data
+        } catch (error) {
+          console.error('Error creating profile image:', error)
+          throw error
+        }
+      }
     },
 
     ContactInfo: {

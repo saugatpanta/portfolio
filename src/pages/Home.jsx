@@ -27,6 +27,7 @@ export default function Home() {
 
   const [displayText, setDisplayText] = useState("");
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const fullText = "Full-Stack Developer";
   
   useEffect(() => {
@@ -41,6 +42,35 @@ export default function Home() {
     }, 100);
     return () => clearInterval(interval);
   }, []);
+
+  // Reset image states when profile data changes
+  useEffect(() => {
+    if (profileData?.profileImage) {
+      setImageLoaded(false);
+      setImageError(false);
+    }
+  }, [profileData?.profileImage]);
+
+  // Get optimized profile image URL
+  const getProfileImageUrl = () => {
+    if (!profileData?.profileImage) return null;
+    
+    // If it's a Cloudinary URL, optimize it
+    if (profileData.profileImage.includes('cloudinary.com')) {
+      return firebaseClient.storage.getOptimizedImage(profileData.profileImage, {
+        width: 400,
+        height: 400,
+        quality: 'auto',
+        crop: 'fill',
+        gravity: 'face' // Focus on faces if detected
+      });
+    }
+    
+    // Return original URL for non-Cloudinary images
+    return profileData.profileImage;
+  };
+
+  const profileImageUrl = getProfileImageUrl();
 
   return (
     <div className="min-h-screen">
@@ -173,33 +203,40 @@ export default function Home() {
                   }}
                   className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 rounded-full border-4 border-white dark:border-slate-900 overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20"
                 >
-                  {/* Dynamic profile image from Firebase */}
-                  {profileData?.profileImage ? (
+                  {profileImageUrl ? (
                     <img
-                      src={profileData.profileImage}
+                      src={profileImageUrl}
                       alt="Saugat Panta"
                       className={`w-full h-full object-cover transition-opacity duration-500 ${
                         imageLoaded ? 'opacity-100' : 'opacity-0'
                       }`}
-                      onLoad={() => setImageLoaded(true)}
+                      onLoad={() => {
+                        console.log('Profile image loaded successfully');
+                        setImageLoaded(true);
+                        setImageError(false);
+                      }}
                       onError={(e) => {
-                        console.log('Firebase image failed to load, showing fallback');
-                        e.target.style.display = 'none';
+                        console.error('Profile image failed to load:', profileImageUrl);
+                        setImageError(true);
                         setImageLoaded(false);
                       }}
                     />
                   ) : (
-                    // Static image fallback
+                    // Fallback to local image when no profile image is set
                     <img
                       src="/saugat-profile.jpg"
                       alt="Saugat Panta"
                       className={`w-full h-full object-cover transition-opacity duration-500 ${
                         imageLoaded ? 'opacity-100' : 'opacity-0'
                       }`}
-                      onLoad={() => setImageLoaded(true)}
+                      onLoad={() => {
+                        console.log('Fallback image loaded successfully');
+                        setImageLoaded(true);
+                        setImageError(false);
+                      }}
                       onError={(e) => {
-                        console.log('Static image failed to load, showing initials');
-                        e.target.style.display = 'none';
+                        console.error('Fallback image also failed to load');
+                        setImageError(true);
                         setImageLoaded(false);
                       }}
                     />
@@ -209,6 +246,13 @@ export default function Home() {
                   {!imageLoaded && (
                     <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold">
                       SP
+                    </div>
+                  )}
+
+                  {/* Loading indicator */}
+                  {!imageLoaded && !imageError && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-slate-200 dark:bg-slate-800">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
                     </div>
                   )}
                 </motion.div>
@@ -344,6 +388,18 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
+
+          {projects.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-12"
+            >
+              <p className="text-slate-600 dark:text-slate-400">
+                No featured projects yet. Add some from the Admin Dashboard!
+              </p>
+            </motion.div>
+          )}
 
           <motion.div
             initial={{ opacity: 0 }}
