@@ -15,7 +15,7 @@ import Admin from './pages/Admin'
 
 const queryClient = new QueryClient()
 
-function App() {
+export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
