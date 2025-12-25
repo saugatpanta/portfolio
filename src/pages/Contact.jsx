@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { firebaseClient } from "@/api/firebaseClient";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -6,8 +6,19 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Mail, MessageSquare, Send, CheckCircle, Github, Linkedin, Twitter, AlertCircle, Phone, MapPin, Globe } from "lucide-react";
+import { Mail, MessageSquare, Send, CheckCircle, Github, Linkedin, Twitter, AlertCircle, Phone, MapPin, Globe, Navigation } from "lucide-react";
 import { toast } from "sonner";
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix for default icons in Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+});
 
 const VALIDATION_RULES = {
   name: { minLength: 2, required: true },
@@ -26,6 +37,13 @@ export default function Contact() {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [mapKey, setMapKey] = useState(Date.now()); // Key to force re-render when location changes
+
+  // Default location (San Francisco)
+  const defaultLocation = {
+    lat: 37.7749,
+    lng: -122.4194
+  };
 
   // Fetch contact info from Firebase
   const { data: contactInfo, isLoading } = useQuery({
@@ -42,6 +60,16 @@ export default function Contact() {
     },
     refetchOnWindowFocus: false
   });
+
+  // Extract location from contact info or use default
+  const location = contactInfo?.locationLat && contactInfo?.locationLng 
+    ? { lat: contactInfo.locationLat, lng: contactInfo.locationLng }
+    : defaultLocation;
+
+  // Update map when location changes
+  useEffect(() => {
+    setMapKey(Date.now());
+  }, [contactInfo?.locationLat, contactInfo?.locationLng]);
 
   const sendMessageMutation = useMutation({
     mutationFn: (data) => firebaseClient.entities.Message.create(data),
@@ -135,16 +163,15 @@ export default function Contact() {
 
   const hasError = (field) => touched[field] && errors[field];
 
-  // Check if we have any contact info
-  const hasContactInfo = contactInfo && Object.keys(contactInfo).length > 0;
-  const hasBasicInfo = contactInfo?.email || contactInfo?.phone || contactInfo?.address || contactInfo?.website;
-  const hasSocialInfo = contactInfo?.github || contactInfo?.linkedin || contactInfo?.twitter;
-
-  console.log('Contact info state:', {
-    hasContactInfo,
-    hasBasicInfo,
-    hasSocialInfo,
-    contactInfo
+  // Create custom marker icon
+  const customIcon = new L.Icon({
+    iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
   });
 
   return (
@@ -157,7 +184,7 @@ export default function Contact() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8 sm:mb-12 md:mb-16"
         >
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 md:mb-6">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 md:mb-6">
             Get In <span className="gradient-text">Touch</span>
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto px-2 sm:px-4">
@@ -173,7 +200,7 @@ export default function Contact() {
             transition={{ delay: 0.2 }}
             className="space-y-6 sm:space-y-8"
           >
-            {/* Basic Contact Card - Always show but with conditional content */}
+            {/* Basic Contact Card */}
             <Card className="p-4 sm:p-6 md:p-8 glass border-0">
               <div className="space-y-4 sm:space-y-6">
                 {/* Email */}
@@ -265,7 +292,67 @@ export default function Contact() {
               </div>
             </Card>
 
-            {/* Social Media Card - Always show but with conditional content */}
+            {/* Map Card */}
+            <Card className="p-0 overflow-hidden glass border-0 h-64 sm:h-72 md:h-80 lg:h-96">
+              <div className="relative h-full w-full">
+                <div className="absolute inset-0 z-10 flex items-center justify-center">
+                  {isLoading ? (
+                    <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-lg p-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mx-auto mb-2"></div>
+                      <p className="text-sm">Loading map...</p>
+                    </div>
+                  ) : (
+                    <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-lg p-4">
+                      <Navigation className="w-6 h-6 text-blue-500 mx-auto mb-2" />
+                      <p className="text-sm font-medium">{contactInfo?.address || "Location not set"}</p>
+                    </div>
+                  )}
+                </div>
+                <MapContainer
+                  key={mapKey}
+                  center={[location.lat, location.lng]}
+                  zoom={contactInfo?.address ? 13 : 2}
+                  className="h-full w-full z-0"
+                  zoomControl={false}
+                  attributionControl={false}
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  {contactInfo?.address && (
+                    <Marker position={[location.lat, location.lng]} icon={customIcon}>
+                      <Popup>
+                        <div className="text-sm">
+                          <strong>My Location</strong>
+                          <p className="mt-1">{contactInfo.address}</p>
+                          {contactInfo?.email && (
+                            <a 
+                              href={`mailto:${contactInfo.email}`}
+                              className="text-blue-500 hover:underline block mt-1"
+                            >
+                              {contactInfo.email}
+                            </a>
+                          )}
+                        </div>
+                      </Popup>
+                    </Marker>
+                  )}
+                </MapContainer>
+                <div className="absolute bottom-2 right-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg px-2 py-1 text-xs">
+                  <a 
+                    href={`https://www.google.com/maps?q=${location.lat},${location.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Open in Google Maps
+                  </a>
+                </div>
+              </div>
+            </Card>
+
+            {/* Social Media Card */}
             <Card className="p-4 sm:p-6 md:p-8 glass border-0">
               <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-purple-500/10 flex items-center justify-center flex-shrink-0">
@@ -274,13 +361,13 @@ export default function Contact() {
                 <div className="min-w-0 flex-1">
                   <h3 className="font-bold text-sm sm:text-base md:text-lg">Social Media</h3>
                   <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400">
-                    {hasSocialInfo ? "Let's connect online" : "Social links not configured"}
+                    Let's connect online
                   </p>
                 </div>
               </div>
               
               <div className="flex gap-3 sm:gap-4">
-                {contactInfo?.github ? (
+                {contactInfo?.github && (
                   <a
                     href={contactInfo.github}
                     target="_blank"
@@ -290,13 +377,8 @@ export default function Contact() {
                   >
                     <Github className="w-4 h-4 sm:w-5 sm:h-5" />
                   </a>
-                ) : (
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center opacity-50 flex-shrink-0" title="GitHub not configured">
-                    <Github className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
-                  </div>
                 )}
-
-                {contactInfo?.linkedin ? (
+                {contactInfo?.linkedin && (
                   <a
                     href={contactInfo.linkedin}
                     target="_blank"
@@ -306,13 +388,8 @@ export default function Contact() {
                   >
                     <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />
                   </a>
-                ) : (
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center opacity-50 flex-shrink-0" title="LinkedIn not configured">
-                    <Linkedin className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
-                  </div>
                 )}
-
-                {contactInfo?.twitter ? (
+                {contactInfo?.twitter && (
                   <a
                     href={contactInfo.twitter}
                     target="_blank"
@@ -322,31 +399,12 @@ export default function Contact() {
                   >
                     <Twitter className="w-4 h-4 sm:w-5 sm:h-5" />
                   </a>
-                ) : (
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center opacity-50 flex-shrink-0" title="Twitter not configured">
-                    <Twitter className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
-                  </div>
                 )}
               </div>
 
-              {!hasSocialInfo && (
+              {!contactInfo?.github && !contactInfo?.linkedin && !contactInfo?.twitter && (
                 <p className="text-xs text-slate-500 mt-3 sm:mt-4 text-center">
                   Configure social links in the admin panel
-                </p>
-              )}
-            </Card>
-
-            {/* Availability Card - Always show */}
-            <Card className="p-4 sm:p-6 md:p-8 glass border-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10">
-              <h3 className="font-bold text-base sm:text-lg md:text-xl mb-2">
-                {contactInfo?.availability || 'Open to Opportunities'}
-              </h3>
-              <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400">
-                {contactInfo?.description || "I'm currently available for freelance work and full-time positions. Let's discuss how we can work together!"}
-              </p>
-              {!hasContactInfo && (
-                <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 sm:mt-3">
-                  💡 Configure your contact information in the admin panel
                 </p>
               )}
             </Card>
@@ -375,7 +433,6 @@ export default function Contact() {
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 md:space-y-6" noValidate>
-                  {/* Name Field */}
                   <div>
                     <label htmlFor="name" className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                       Your Name <span className="text-red-500">*</span>
@@ -395,25 +452,18 @@ export default function Contact() {
                           : ''
                       }`}
                     />
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ 
-                        opacity: hasError('name') ? 1 : 0,
-                        y: hasError('name') ? 0 : -10
-                      }}
-                      transition={{ duration: 0.2 }}
-                      className="flex items-center gap-1 mt-1 sm:mt-2 text-xs sm:text-sm text-red-500"
-                    >
-                      {hasError('name') && (
-                        <>
-                          <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span>{errors.name}</span>
-                        </>
-                      )}
-                    </motion.div>
+                    {hasError('name') && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-1 mt-1 sm:mt-2 text-xs sm:text-sm text-red-500"
+                      >
+                        <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>{errors.name}</span>
+                      </motion.div>
+                    )}
                   </div>
 
-                  {/* Email Field */}
                   <div>
                     <label htmlFor="email" className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                       Email Address <span className="text-red-500">*</span>
@@ -434,25 +484,18 @@ export default function Contact() {
                           : ''
                       }`}
                     />
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ 
-                        opacity: hasError('email') ? 1 : 0,
-                        y: hasError('email') ? 0 : -10
-                      }}
-                      transition={{ duration: 0.2 }}
-                      className="flex items-center gap-1 mt-1 sm:mt-2 text-xs sm:text-sm text-red-500"
-                    >
-                      {hasError('email') && (
-                        <>
-                          <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span>{errors.email}</span>
-                        </>
-                      )}
-                    </motion.div>
+                    {hasError('email') && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-1 mt-1 sm:mt-2 text-xs sm:text-sm text-red-500"
+                      >
+                        <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>{errors.email}</span>
+                      </motion.div>
+                    )}
                   </div>
 
-                  {/* Subject Field */}
                   <div>
                     <label htmlFor="subject" className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                       Subject <span className="text-red-500">*</span>
@@ -461,7 +504,7 @@ export default function Contact() {
                       id="subject"
                       name="subject"
                       value={formData.subject}
-                      onChange={(e) => handleChange(e)}
+                      onChange={handleChange}
                       onBlur={handleBlur}
                       placeholder="Project inquiry"
                       className={`glass transition-all text-sm sm:text-base ${
@@ -472,25 +515,18 @@ export default function Contact() {
                           : ''
                       }`}
                     />
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ 
-                        opacity: hasError('subject') ? 1 : 0,
-                        y: hasError('subject') ? 0 : -10
-                      }}
-                      transition={{ duration: 0.2 }}
-                      className="flex items-center gap-1 mt-1 sm:mt-2 text-xs sm:text-sm text-red-500"
-                    >
-                      {hasError('subject') && (
-                        <>
-                          <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span>{errors.subject}</span>
-                        </>
-                      )}
-                    </motion.div>
+                    {hasError('subject') && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-1 mt-1 sm:mt-2 text-xs sm:text-sm text-red-500"
+                      >
+                        <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>{errors.subject}</span>
+                      </motion.div>
+                    )}
                   </div>
 
-                  {/* Message Field */}
                   <div>
                     <label htmlFor="message" className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                       Message <span className="text-red-500">*</span>
@@ -511,30 +547,20 @@ export default function Contact() {
                           : ''
                       }`}
                     />
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ 
-                        opacity: hasError('message') ? 1 : 0,
-                        y: hasError('message') ? 0 : -10
-                      }}
-                      transition={{ duration: 0.2 }}
-                      className="flex items-center gap-1 mt-1 sm:mt-2 text-xs sm:text-sm text-red-500"
-                    >
-                      {hasError('message') && (
-                        <>
-                          <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span>{errors.message}</span>
-                        </>
-                      )}
-                    </motion.div>
-                    {touched.message && !errors.message && formData.message.length >= 10 && (
+                    {hasError('message') && (
                       <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-1 sm:mt-2 text-xs sm:text-sm text-slate-500"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-1 mt-1 sm:mt-2 text-xs sm:text-sm text-red-500"
                       >
-                        {formData.message.length} characters
+                        <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>{errors.message}</span>
                       </motion.div>
+                    )}
+                    {touched.message && !errors.message && formData.message.length >= 10 && (
+                      <div className="mt-1 sm:mt-2 text-xs sm:text-sm text-slate-500">
+                        {formData.message.length} characters
+                      </div>
                     )}
                   </div>
 
@@ -546,18 +572,15 @@ export default function Contact() {
                   >
                     {sendMessageMutation.isPending ? (
                       <>
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                        >
-                          <Send className="w-3 h-3 sm:w-4 sm:h-4" />
-                        </motion.div>
+                        <div className="animate-spin">
+                          <Send className="w-4 h-4" />
+                        </div>
                         Sending...
                       </>
                     ) : (
                       <>
                         Send Message
-                        <Send className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
+                        <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
                   </Button>
