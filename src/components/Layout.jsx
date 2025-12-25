@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Moon, Sun, Menu, X, Home, User, Briefcase, FolderGit2, Mail, Shield, BookOpen } from "lucide-react";
+import { Moon, Sun, Menu, X, Home, User, Briefcase, FolderGit2, Mail, Shield, BookOpen, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { firebaseClient } from "@/api/firebaseClient";
 import { Separator } from "@/components/ui/separator";
 
 const navigationItems = [
-  { title: "Home", url: createPageUrl("Home"), icon: Home },
-  { title: "About", url: createPageUrl("About"), icon: User },
-  { title: "Projects", url: createPageUrl("Projects"), icon: FolderGit2 },
-  { title: "Experience", url: createPageUrl("Experience"), icon: Briefcase },
-  { title: "Blog", url: createPageUrl("Blog"), icon: BookOpen },
-  { title: "Contact", url: createPageUrl("Contact"), icon: Mail },
+  { title: "Home", url: createPageUrl("Home"), icon: Home, mobileLabel: "Home" },
+  { title: "About", url: createPageUrl("About"), icon: User, mobileLabel: "About" },
+  { title: "Projects", url: createPageUrl("Projects"), icon: FolderGit2, mobileLabel: "Work" },
+  { title: "Experience", url: createPageUrl("Experience"), icon: Briefcase, mobileLabel: "Exp" },
+  { title: "Blog", url: createPageUrl("Blog"), icon: BookOpen, mobileLabel: "Blog" },
+  { title: "Contact", url: createPageUrl("Contact"), icon: Mail, mobileLabel: "Contact" },
 ];
 
 export default function Layout({ children, currentPageName }) {
@@ -23,17 +23,20 @@ export default function Layout({ children, currentPageName }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showBottomNav, setShowBottomNav] = useState(false);
 
   // Check screen size
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 1024);
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      setShowBottomNav(mobile && !mobileMenuOpen);
     };
 
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
+  }, [mobileMenuOpen]);
 
   // Close mobile menu when window is resized to desktop
   useEffect(() => {
@@ -84,6 +87,19 @@ export default function Layout({ children, currentPageName }) {
     return location.pathname === url;
   };
 
+  // Handle body scroll lock
+  useEffect(() => {
+    if (mobileMenuOpen && isMobile) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen, isMobile]);
+
   return (
     <>
       <style>{`
@@ -112,7 +128,7 @@ export default function Layout({ children, currentPageName }) {
         }
 
         .glass {
-          background: rgba(var(--color-surface), 0.6);
+          background: rgba(var(--color-surface), 0.8);
           backdrop-filter: blur(12px);
           border: 1px solid rgba(var(--color-text), 0.1);
         }
@@ -124,9 +140,31 @@ export default function Layout({ children, currentPageName }) {
           background-clip: text;
         }
 
+        /* Enhanced mobile bottom navigation */
+        .bottom-nav {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          z-index: 40;
+          background: rgba(var(--color-surface), 0.95);
+          backdrop-filter: blur(20px);
+          border-top: 1px solid rgba(var(--color-text), 0.1);
+          box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+          padding: 8px 0;
+          transform: translateY(0);
+          transition: transform 0.3s ease;
+        }
+
+        .bottom-nav.hidden {
+          transform: translateY(100%);
+        }
+
         /* Prevent body scroll when mobile menu is open */
         body.menu-open {
           overflow: hidden;
+          position: fixed;
+          width: 100%;
         }
 
         /* Hide scrollbar but allow scrolling */
@@ -137,6 +175,14 @@ export default function Layout({ children, currentPageName }) {
         .no-scrollbar::-webkit-scrollbar {
           display: none; /* Chrome, Safari and Opera */
         }
+
+        /* Better touch targets for mobile */
+        @media (max-width: 640px) {
+          button, a {
+            min-height: 44px;
+            min-width: 44px;
+          }
+        }
       `}</style>
 
       {/* Add body class when mobile menu is open */}
@@ -144,12 +190,14 @@ export default function Layout({ children, currentPageName }) {
         <style>{`
           body {
             overflow: hidden;
+            position: fixed;
+            width: 100%;
           }
         `}</style>
       )}
 
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-x-hidden">
-        {/* Navigation - FIXED VERSION */}
+        {/* Navigation */}
         <motion.nav
           initial={{ y: -100 }}
           animate={{ y: 0 }}
@@ -172,7 +220,7 @@ export default function Layout({ children, currentPageName }) {
                 </motion.div>
               </Link>
 
-              {/* Desktop Navigation - HIDDEN ON MOBILE & TABLET */}
+              {/* Desktop Navigation */}
               <div className="hidden lg:flex items-center space-x-1 xl:space-x-2">
                 <div className="flex items-center space-x-1 xl:space-x-2 overflow-x-auto no-scrollbar max-w-[500px] xl:max-w-[600px]">
                   {navigationItems.map((item) => (
@@ -227,7 +275,7 @@ export default function Layout({ children, currentPageName }) {
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsDark(!isDark)}
-                  className="rounded-full w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9"
+                  className="rounded-full w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 hover:bg-slate-100 dark:hover:bg-slate-800"
                   aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
                 >
                   {isDark ? (
@@ -237,12 +285,12 @@ export default function Layout({ children, currentPageName }) {
                   )}
                 </Button>
 
-                {/* Mobile Menu Button - SHOW ON MOBILE & TABLET */}
+                {/* Mobile Menu Button */}
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="lg:hidden rounded-full w-7 h-7 sm:w-8 sm:h-8"
+                  className="lg:hidden rounded-full w-7 h-7 sm:w-8 sm:h-8 hover:bg-slate-100 dark:hover:bg-slate-800"
                   aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
                 >
                   {mobileMenuOpen ? (
@@ -256,7 +304,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </motion.nav>
 
-        {/* Mobile Menu - IMPROVED FOR BETTER MOBILE EXPERIENCE */}
+        {/* Mobile Menu */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <>
@@ -265,7 +313,7 @@ export default function Layout({ children, currentPageName }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+                className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
                 onClick={() => setMobileMenuOpen(false)}
                 aria-hidden="true"
               />
@@ -297,6 +345,9 @@ export default function Layout({ children, currentPageName }) {
                       >
                         <item.icon className="w-5 h-5 flex-shrink-0" />
                         <span className="font-medium text-base sm:text-lg">{item.title}</span>
+                        {isActive(item.url) && (
+                          <div className="ml-auto w-2 h-2 rounded-full bg-blue-500" />
+                        )}
                       </Link>
                     </motion.div>
                   ))}
@@ -316,7 +367,7 @@ export default function Layout({ children, currentPageName }) {
                         className="flex items-center gap-3 p-3 sm:p-4 rounded-lg hover:bg-purple-500/10 text-purple-500 border-l-4 border-purple-500"
                       >
                         <Shield className="w-5 h-5 flex-shrink-0" />
-                        <span className="font-medium text-base sm:text-lg">Admin</span>
+                        <span className="font-medium text-base sm:text-lg">Admin Dashboard</span>
                       </Link>
                     ) : (
                       <button
@@ -334,7 +385,7 @@ export default function Layout({ children, currentPageName }) {
 
                   <Separator className="my-2" />
                   
-                  {/* Dark Mode Toggle in Mobile Menu */}
+                  {/* Theme Toggle in Mobile Menu */}
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -370,8 +421,65 @@ export default function Layout({ children, currentPageName }) {
           )}
         </AnimatePresence>
 
+        {/* Mobile Bottom Navigation */}
+        {showBottomNav && (
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            className={`bottom-nav ${mobileMenuOpen ? 'hidden' : ''}`}
+          >
+            <div className="grid grid-cols-6 gap-1 px-2">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.title}
+                  to={item.url}
+                  className="flex flex-col items-center justify-center p-2 rounded-lg transition-all"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div className={`p-1.5 rounded-full transition-colors ${
+                    isActive(item.url)
+                      ? 'bg-blue-500/10 text-blue-500'
+                      : 'text-slate-600 dark:text-slate-400'
+                  }`}>
+                    <item.icon className="w-5 h-5" />
+                  </div>
+                  <span className={`text-xs font-medium mt-1 truncate w-full text-center ${
+                    isActive(item.url)
+                      ? 'text-blue-500'
+                      : 'text-slate-600 dark:text-slate-400'
+                  }`}>
+                    {item.mobileLabel}
+                  </span>
+                </Link>
+              ))}
+            </div>
+            
+            {/* Admin button in bottom nav */}
+            <div className="absolute top-0 right-0 p-2">
+              {isAuthenticated ? (
+                <Link
+                  to={createPageUrl("Admin")}
+                  className="p-1.5 rounded-full bg-purple-500/10 text-purple-500"
+                  title="Admin"
+                >
+                  <Shield className="w-5 h-5" />
+                </Link>
+              ) : (
+                <button
+                  onClick={() => firebaseClient.auth.redirectToLogin(createPageUrl("Admin"))}
+                  className="p-1.5 rounded-full bg-purple-500/10 text-purple-500"
+                  title="Admin Login"
+                >
+                  <Shield className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+
         {/* Main Content */}
-        <main className="pt-14 sm:pt-16 md:pt-20">
+        <main className={`pt-14 sm:pt-16 md:pt-20 ${showBottomNav ? 'pb-20' : 'pb-0'}`}>
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -386,11 +494,45 @@ export default function Layout({ children, currentPageName }) {
         </main>
 
         {/* Footer */}
-        <footer className="mt-8 sm:mt-12 md:mt-16 py-6 sm:py-8 md:py-12 border-t border-slate-200 dark:border-slate-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
-              © {new Date().getFullYear()} Portfolio. Built with React & Firebase.
-            </p>
+        <footer className={`${showBottomNav ? 'mb-20' : ''} mt-8 sm:mt-12 md:mt-16 py-6 sm:py-8 md:py-12 border-t border-slate-200 dark:border-slate-800`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="text-center md:text-left">
+                <h3 className="text-lg font-bold gradient-text mb-2">Let's Connect</h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm">
+                  Have a project in mind? Let's build something amazing together.
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <Link
+                  to={createPageUrl("Contact")}
+                  className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-blue-500 transition-colors"
+                >
+                  <Mail className="w-4 h-4" />
+                  <span className="text-sm">Contact Me</span>
+                </Link>
+                
+                <Link
+                  to={createPageUrl("Contact")}
+                  className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-blue-500 transition-colors"
+                >
+                  <MapPin className="w-4 h-4" />
+                  <span className="text-sm">View Location</span>
+                </Link>
+              </div>
+            </div>
+            
+            <Separator className="my-6" />
+            
+            <div className="text-center">
+              <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
+                © {new Date().getFullYear()} Portfolio. Built with React & Firebase.
+              </p>
+              <p className="text-slate-500 dark:text-slate-500 text-xs mt-2">
+                View the location map on the contact page
+              </p>
+            </div>
           </div>
         </footer>
       </div>
