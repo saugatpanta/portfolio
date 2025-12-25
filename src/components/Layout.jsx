@@ -216,7 +216,7 @@ export default function Layout({ children, currentPageName }) {
                   whileHover={{ scale: 1.05 }}
                   className="text-lg sm:text-xl font-bold gradient-text whitespace-nowrap overflow-hidden text-ellipsis"
                 >
-                  Portfolio
+                  Saugat Panta
                 </motion.div>
               </Link>
 
@@ -539,3 +539,4 @@ export default function Layout({ children, currentPageName }) {
     </>
   );
 }
+
