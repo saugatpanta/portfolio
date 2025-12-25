@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { firebaseClient } from "@/api/firebaseClient";
 import { Button } from "@/components/ui/button";
 import { 
@@ -12,14 +14,10 @@ import {
   FolderGit2, 
   Zap, 
   MessageSquare,
-  User,
-  Globe,
   Settings,
   ChevronRight,
   CheckCircle
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 
 import ProjectManager from "../components/admin/ProjectManager";
 import ExperienceManager from "../components/admin/ExperienceManager";
@@ -38,7 +36,7 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState("profile");
   const [isMobile, setIsMobile] = useState(false);
 
-  // Check screen size for mobile detection
+  // Check screen size
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -77,7 +75,6 @@ export default function Admin() {
     checkAuth();
   }, []);
 
-  // Update active tab based on URL or persist on refresh
   useEffect(() => {
     const savedTab = localStorage.getItem('admin-active-tab');
     if (savedTab && tabConfig.find(tab => tab.value === savedTab)) {
@@ -86,7 +83,6 @@ export default function Admin() {
   }, []);
 
   useEffect(() => {
-    // Save active tab to localStorage
     localStorage.setItem('admin-active-tab', activeTab);
   }, [activeTab]);
 
@@ -120,7 +116,6 @@ export default function Admin() {
           </div>
           <div className="space-y-2">
             <p className="text-gray-700 dark:text-gray-300 font-medium">Loading dashboard...</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Please wait while we verify your credentials</p>
           </div>
         </div>
       </div>
@@ -131,9 +126,7 @@ export default function Admin() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900">
         <div className="text-center space-y-4">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 dark:border-blue-900/50 border-t-blue-500 dark:border-t-blue-400 mx-auto" />
-          </div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 dark:border-blue-900/50 border-t-blue-500 dark:border-t-blue-400 mx-auto" />
           <p className="text-gray-700 dark:text-gray-300 font-medium">Redirecting to login...</p>
         </div>
       </div>
@@ -144,28 +137,26 @@ export default function Admin() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
         <div className="max-w-md w-full mx-auto text-center p-8 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 dark:border-gray-800/50">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/20 dark:to-pink-900/20 flex items-center justify-center">
-            <AlertCircle className="w-10 h-10 text-red-600 dark:text-red-400" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/20 dark:to-pink-900/20 flex items-center justify-center">
+            <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">
             Access Restricted
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-            You don't have permission to access the admin panel. Please contact the administrator if you believe this is an error.
+          <p className="text-gray-600 dark:text-gray-400 mb-6 text-sm">
+            You don't have permission to access the admin panel.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to={createPageUrl("Home")} className="w-full sm:w-auto">
+          <div className="flex flex-col gap-3">
+            <Link to={createPageUrl("Home")} className="w-full">
               <Button className="w-full gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white">
-                <Globe className="w-4 h-4" />
                 Visit Website
               </Button>
             </Link>
             <Button 
               onClick={handleLogout} 
               variant="outline" 
-              className="gap-2 w-full sm:w-auto"
+              className="gap-2 w-full"
             >
-              <LogOut className="w-4 h-4" />
               Sign Out
             </Button>
           </div>
@@ -176,17 +167,17 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900">
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 py-3 px-4 sm:px-6 md:px-8">
+      {/* Header */}
+      <div className="sticky top-0 z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 py-3 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between gap-4">
-            {/* Logo/Brand */}
+          <div className="flex items-center justify-between gap-3">
+            {/* Logo */}
             <div className="flex items-center gap-3 min-w-0">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md flex-shrink-0">
-                <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md">
+                <Settings className="w-5 h-5 text-white" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent truncate">
+                <h1 className="text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent truncate">
                   Admin Dashboard
                 </h1>
                 {userEmail && (
@@ -198,15 +189,13 @@ export default function Admin() {
             </div>
 
             {/* Desktop Actions */}
-            <div className="hidden md:flex items-center gap-3 flex-shrink-0">
+            <div className="hidden md:flex items-center gap-3">
               <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                <span className="text-xs sm:text-sm font-medium text-green-700 dark:text-green-400">
+                <span className="text-xs font-medium text-green-700 dark:text-green-400">
                   Active
                 </span>
               </div>
-              
-              <div className="h-6 w-px bg-gray-300 dark:bg-gray-700"></div>
               
               <Link to={createPageUrl("Home")}>
                 <Button 
@@ -215,8 +204,7 @@ export default function Admin() {
                   className="gap-2 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20"
                 >
                   <Home className="w-4 h-4" />
-                  <span className="hidden lg:inline">View Site</span>
-                  <span className="lg:hidden">Site</span>
+                  View Site
                 </Button>
               </Link>
               
@@ -227,13 +215,12 @@ export default function Admin() {
                 className="gap-2 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden lg:inline">Logout</span>
-                <span className="lg:hidden">Out</span>
+                Logout
               </Button>
             </div>
 
             {/* Mobile Actions */}
-            <div className="md:hidden flex items-center gap-2 flex-shrink-0">
+            <div className="md:hidden flex items-center gap-2">
               <Link to={createPageUrl("Home")}>
                 <Button 
                   variant="ghost" 
@@ -259,52 +246,26 @@ export default function Admin() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="py-4 sm:py-6 md:py-8 px-4 sm:px-6 md:px-8">
+      {/* Main Content - Dynamic padding based on screen size */}
+      <div className={`${isMobile ? 'pb-16' : 'pb-0'} pt-4 px-4 sm:px-6`}>
         <div className="max-w-7xl mx-auto">
-          {/* Desktop Tabs Navigation */}
-          <div className="hidden lg:block mb-8">
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-1">
-              <div className="flex flex-wrap gap-1">
-                {tabConfig.map((tab) => (
-                  <Button
-                    key={tab.value}
-                    variant={activeTab === tab.value ? "default" : "ghost"}
-                    onClick={() => handleTabChange(tab.value)}
-                    className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all ${
-                      activeTab === tab.value 
-                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md hover:from-blue-600 hover:to-blue-700' 
-                        : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <tab.icon className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-medium whitespace-nowrap">{tab.label}</span>
-                    {activeTab === tab.value && (
-                      <ChevronRight className="w-4 h-4 ml-1 opacity-80" />
-                    )}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Tablet Tabs Navigation */}
-          <div className="hidden md:block lg:hidden mb-6">
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-1">
+          {/* Mobile Tabs Navigation - Only shown on mobile */}
+          {isMobile && (
+            <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-2 shadow-lg">
               <div className="grid grid-cols-4 gap-1">
                 {tabConfig.slice(0, 4).map((tab) => (
                   <Button
                     key={tab.value}
                     variant={activeTab === tab.value ? "default" : "ghost"}
                     onClick={() => handleTabChange(tab.value)}
-                    className={`flex flex-col items-center gap-1 py-3 rounded-lg transition-all ${
+                    className={`flex flex-col items-center gap-1 py-2 h-auto rounded-lg transition-all text-xs ${
                       activeTab === tab.value 
-                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm' 
                         : 'hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
-                    <tab.icon className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-xs font-medium truncate w-full px-1">{tab.label}</span>
+                    <tab.icon className="w-4 h-4" />
+                    <span className="font-medium">{tab.mobileLabel}</span>
                   </Button>
                 ))}
               </div>
@@ -314,173 +275,129 @@ export default function Admin() {
                     key={tab.value}
                     variant={activeTab === tab.value ? "default" : "ghost"}
                     onClick={() => handleTabChange(tab.value)}
-                    className={`flex flex-col items-center gap-1 py-3 rounded-lg transition-all ${
+                    className={`flex flex-col items-center gap-1 py-2 h-auto rounded-lg transition-all text-xs ${
                       activeTab === tab.value 
-                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm' 
                         : 'hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
-                    <tab.icon className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-xs font-medium truncate w-full px-1">{tab.label}</span>
+                    <tab.icon className="w-4 h-4" />
+                    <span className="font-medium">{tab.mobileLabel}</span>
                   </Button>
                 ))}
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Mobile Tabs Navigation - Bottom Fixed */}
-          <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-2">
-            <div className="grid grid-cols-4 gap-1">
-              {tabConfig.slice(0, 4).map((tab) => (
-                <Button
-                  key={tab.value}
-                  variant={activeTab === tab.value ? "default" : "ghost"}
-                  onClick={() => handleTabChange(tab.value)}
-                  className={`flex flex-col items-center gap-0.5 py-2 h-auto rounded-lg transition-all text-xs ${
-                    activeTab === tab.value 
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="font-medium truncate w-full px-0.5">{tab.mobileLabel}</span>
-                </Button>
-              ))}
-            </div>
-            <div className="grid grid-cols-3 gap-1 mt-1">
-              {tabConfig.slice(4).map((tab) => (
-                <Button
-                  key={tab.value}
-                  variant={activeTab === tab.value ? "default" : "ghost"}
-                  onClick={() => handleTabChange(tab.value)}
-                  className={`flex flex-col items-center gap-0.5 py-2 h-auto rounded-lg transition-all text-xs ${
-                    activeTab === tab.value 
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="font-medium truncate w-full px-0.5">{tab.mobileLabel}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          {/* Main Content Area with responsive padding */}
-          <div className="mb-16 md:mb-0"> {/* Extra bottom margin for mobile fixed nav */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
-              {/* Content Header */}
-              <div className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-white dark:from-gray-900/50 dark:to-gray-900">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${
-                      activeTab === "profile" ? "bg-gradient-to-br from-blue-500 to-blue-600" :
-                      activeTab === "contact" ? "bg-gradient-to-br from-green-500 to-green-600" :
-                      activeTab === "blog" ? "bg-gradient-to-br from-purple-500 to-purple-600" :
-                      activeTab === "projects" ? "bg-gradient-to-br from-orange-500 to-orange-600" :
-                      activeTab === "experience" ? "bg-gradient-to-br from-red-500 to-red-600" :
-                      activeTab === "skills" ? "bg-gradient-to-br from-yellow-500 to-yellow-600" :
-                      "bg-gradient-to-br from-pink-500 to-pink-600"
-                    }`}>
-                      {tabConfig.find(tab => tab.value === activeTab)?.icon && 
-                        React.createElement(tabConfig.find(tab => tab.value === activeTab)?.icon, {
-                          className: "w-5 h-5 text-white"
-                        })
-                      }
-                    </div>
-                    <div>
-                      <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
-                        {tabConfig.find(tab => tab.value === activeTab)?.label} Manager
-                      </h2>
-                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                        Manage your {tabConfig.find(tab => tab.value === activeTab)?.label.toLowerCase()} settings
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Quick Action Buttons */}
-                  <div className="flex items-center gap-2">
-                    <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <CheckCircle className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                      <span className="text-xs font-medium text-green-700 dark:text-green-400">
-                        Saved
-                      </span>
-                    </div>
-                  </div>
+          {/* Desktop Tabs Navigation - Only shown on desktop */}
+          {!isMobile && (
+            <div className="mb-6">
+              <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-1">
+                <div className="flex flex-wrap gap-1">
+                  {tabConfig.map((tab) => (
+                    <Button
+                      key={tab.value}
+                      variant={activeTab === tab.value ? "default" : "ghost"}
+                      onClick={() => handleTabChange(tab.value)}
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm ${
+                        activeTab === tab.value 
+                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm' 
+                          : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <tab.icon className="w-4 h-4" />
+                      <span>{tab.label}</span>
+                      {activeTab === tab.value && (
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      )}
+                    </Button>
+                  ))}
                 </div>
               </div>
+            </div>
+          )}
 
-              {/* Content Body with enhanced mobile-friendly buttons */}
-              <div className="p-3 sm:p-4 md:p-6">
-                <div className="w-full">
-                  {/* Responsive Content Container */}
-                  <div className={`${activeTab === "blog" ? 'overflow-x-auto -mx-3 sm:-mx-4 md:-mx-6 px-3 sm:px-4 md:px-6' : ''}`}>
-                    <div className={activeTab === "blog" ? 'min-w-[768px] md:min-w-0' : ''}>
-                      {activeTab === "profile" && <ProfileManager />}
-                      {activeTab === "contact" && <ContactManager />}
-                      {activeTab === "blog" && <BlogManager />}
-                      {activeTab === "projects" && <ProjectManager />}
-                      {activeTab === "experience" && <ExperienceManager />}
-                      {activeTab === "skills" && <SkillsManager />}
-                      {activeTab === "messages" && <MessagesManager />}
-                    </div>
+          {/* Content Area */}
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+            {/* Content Header */}
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${
+                    activeTab === "profile" ? "bg-gradient-to-br from-blue-500 to-blue-600" :
+                    activeTab === "contact" ? "bg-gradient-to-br from-green-500 to-green-600" :
+                    activeTab === "blog" ? "bg-gradient-to-br from-purple-500 to-purple-600" :
+                    activeTab === "projects" ? "bg-gradient-to-br from-orange-500 to-orange-600" :
+                    activeTab === "experience" ? "bg-gradient-to-br from-red-500 to-red-600" :
+                    activeTab === "skills" ? "bg-gradient-to-br from-yellow-500 to-yellow-600" :
+                    "bg-gradient-to-br from-pink-500 to-pink-600"
+                  }`}>
+                    {tabConfig.find(tab => tab.value === activeTab)?.icon && 
+                      React.createElement(tabConfig.find(tab => tab.value === activeTab)?.icon, {
+                        className: "w-5 h-5 text-white"
+                      })
+                    }
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                      {tabConfig.find(tab => tab.value === activeTab)?.label} Manager
+                    </h2>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                      Manage your {tabConfig.find(tab => tab.value === activeTab)?.label.toLowerCase()} settings
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Status Indicator */}
+                <div className="flex items-center gap-2 sm:ml-auto">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    <span className="text-xs font-medium text-green-700 dark:text-green-400">
+                      Active
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Mobile Status Bar */}
-          <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-t border-blue-200/50 dark:border-blue-800/50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate max-w-[120px]">
-                  {userEmail.split('@')[0]}
-                </span>
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
-                Last saved: Just now
+            {/* Content Body */}
+            <div className="p-3 sm:p-4 md:p-6">
+              <div className="w-full overflow-x-hidden">
+                {/* Responsive Content Container */}
+                <div className={`${activeTab === "blog" ? 'overflow-x-auto' : 'w-full'}`}>
+                  <div className={`${activeTab === "blog" ? 'min-w-[768px] md:min-w-0' : 'w-full'} overflow-visible`}>
+                    {activeTab === "profile" && <ProfileManager />}
+                    {activeTab === "contact" && <ContactManager />}
+                    {activeTab === "blog" && <BlogManager />}
+                    {activeTab === "projects" && <ProjectManager />}
+                    {activeTab === "experience" && <ExperienceManager />}
+                    {activeTab === "skills" && <SkillsManager />}
+                    {activeTab === "messages" && <MessagesManager />}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile-Specific Button Enhancements */}
+      {/* Mobile-Specific Styles */}
       <style jsx>{`
-        /* Enhanced touch targets for mobile buttons */
+        /* Ensure buttons don't overflow on mobile */
         @media (max-width: 640px) {
           button {
             min-height: 44px;
             min-width: 44px;
           }
           
-          /* Improve button feedback */
-          .mobile-tap:active {
-            transform: scale(0.98);
-            transition: transform 0.1s ease;
-          }
-          
           /* Better scroll handling */
           .overflow-x-auto {
             -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
           }
-        }
-        
-        /* Tablet optimizations */
-        @media (min-width: 641px) and (max-width: 1024px) {
-          button {
-            min-height: 40px;
-            padding-left: 12px;
-            padding-right: 12px;
-          }
-        }
-        
-        /* Fix for mobile fixed positioning */
-        @media (max-width: 768px) {
-          .fixed-nav-spacing {
-            margin-bottom: 120px;
+          
+          .overflow-x-auto::-webkit-scrollbar {
+            display: none;
           }
         }
       `}</style>
