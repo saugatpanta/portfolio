@@ -31,18 +31,18 @@ export default function Blog() {
   const featuredPost = posts.find(p => p.featured);
 
   return (
-    <div className="min-h-screen py-20 px-6">
+    <div className="min-h-screen py-8 sm:py-12 md:py-16 lg:py-20 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 md:mb-16"
         >
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6">
             My <span className="gradient-text">Blog</span>
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto px-2">
             Thoughts, tutorials, and insights on web development, design, and technology
           </p>
         </motion.div>
@@ -53,12 +53,12 @@ export default function Blog() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-16"
+            className="mb-8 sm:mb-12 md:mb-16"
           >
             <Link to={createPageUrl("BlogPost") + `?slug=${featuredPost.slug}`}>
-              <Card className="group overflow-hidden border-0 glass hover:shadow-2xl transition-all duration-300 cursor-pointer">
+              <Card className="group overflow-hidden border-0 glass hover:shadow-xl sm:hover:shadow-2xl transition-all duration-300 cursor-pointer">
                 <div className="grid lg:grid-cols-2 gap-0">
-                  <div className="relative h-80 lg:h-auto overflow-hidden bg-gradient-to-br from-blue-500/10 to-purple-500/10">
+                  <div className="relative h-48 sm:h-64 md:h-80 lg:h-auto overflow-hidden bg-gradient-to-br from-blue-500/10 to-purple-500/10">
                     {featuredPost.featured_image ? (
                       <img
                         src={featuredPost.featured_image}
@@ -66,46 +66,46 @@ export default function Blog() {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-8xl font-bold text-slate-300 dark:text-slate-700">
+                      <div className="w-full h-full flex items-center justify-center text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-slate-300 dark:text-slate-700">
                         {featuredPost.title[0]}
                       </div>
                     )}
-                    <div className="absolute top-4 left-4">
-                      <span className="px-4 py-2 rounded-full bg-blue-500 text-white text-sm font-semibold">
+                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
+                      <span className="px-2 sm:px-3 md:px-4 py-1 sm:py-2 rounded-full bg-blue-500 text-white text-xs sm:text-sm font-semibold">
                         Featured
                       </span>
                     </div>
                   </div>
-                  <div className="p-8 lg:p-12 flex flex-col justify-center">
-                    <div className="flex items-center gap-4 mb-4 text-sm text-slate-600 dark:text-slate-400">
+                  <div className="p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 flex flex-col justify-center">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3 sm:mb-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                       <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                         {format(new Date(featuredPost.published_date || featuredPost.created_date), "MMM d, yyyy")}
                       </div>
                       <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
+                        <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                         {featuredPost.reading_time || 5} min read
                       </div>
                     </div>
-                    <h2 className="text-3xl lg:text-4xl font-bold mb-4 group-hover:text-blue-500 transition-colors">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 group-hover:text-blue-500 transition-colors">
                       {featuredPost.title}
                     </h2>
-                    <p className="text-slate-600 dark:text-slate-400 mb-6 line-clamp-3">
+                    <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4 sm:mb-6 line-clamp-3">
                       {featuredPost.excerpt}
                     </p>
-                    <div className="flex flex-wrap gap-2 mb-6">
+                    <div className="flex flex-wrap gap-1 sm:gap-2 mb-4 sm:mb-6">
                       {featuredPost.tags?.slice(0, 3).map((tag, i) => (
                         <span
                           key={i}
-                          className="px-3 py-1 text-xs font-medium rounded-full bg-blue-500/10 text-blue-500"
+                          className="px-2 sm:px-3 py-1 text-xs font-medium rounded-full bg-blue-500/10 text-blue-500"
                         >
                           {tag}
                         </span>
                       ))}
                     </div>
-                    <div className="flex items-center gap-2 text-blue-500 font-medium group-hover:gap-4 transition-all">
+                    <div className="flex items-center gap-2 text-blue-500 font-medium text-sm sm:text-base group-hover:gap-3 sm:group-hover:gap-4 transition-all">
                       Read More
-                      <ArrowRight className="w-5 h-5" />
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                   </div>
                 </div>
@@ -119,25 +119,25 @@ export default function Blog() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mb-12"
+          className="mb-8 sm:mb-12"
         >
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
               <Input
                 placeholder="Search posts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 glass"
+                className="pl-9 sm:pl-10 glass text-sm sm:text-base"
               />
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             <Button
               variant={selectedTag === "all" ? "default" : "outline"}
               onClick={() => setSelectedTag("all")}
-              className={selectedTag === "all" ? "bg-blue-500 hover:bg-blue-600" : ""}
+              className={selectedTag === "all" ? "bg-blue-500 hover:bg-blue-600 text-xs sm:text-sm" : "text-xs sm:text-sm"}
               size="sm"
             >
               All Posts
@@ -147,7 +147,7 @@ export default function Blog() {
                 key={tag}
                 variant={selectedTag === tag ? "default" : "outline"}
                 onClick={() => setSelectedTag(tag)}
-                className={selectedTag === tag ? "bg-blue-500 hover:bg-blue-600" : ""}
+                className={selectedTag === tag ? "bg-blue-500 hover:bg-blue-600 text-xs sm:text-sm" : "text-xs sm:text-sm"}
                 size="sm"
               >
                 {tag}
@@ -157,7 +157,7 @@ export default function Blog() {
         </motion.div>
 
         {/* Blog Posts Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           <AnimatePresence mode="popLayout">
             {filteredPosts.filter(p => !p.featured || posts.length === 1).map((post, index) => (
               <motion.div
@@ -167,10 +167,11 @@ export default function Blog() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ delay: index * 0.05 }}
+                className="w-full"
               >
                 <Link to={createPageUrl("BlogPost") + `?slug=${post.slug}`}>
-                  <Card className="group overflow-hidden border-0 glass hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col">
-                    <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-500/10 to-purple-500/10">
+                  <Card className="group overflow-hidden border-0 glass hover:shadow-lg sm:hover:shadow-xl lg:hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col">
+                    <div className="relative h-40 sm:h-48 md:h-56 overflow-hidden bg-gradient-to-br from-blue-500/10 to-purple-500/10">
                       {post.featured_image ? (
                         <img
                           src={post.featured_image}
@@ -178,21 +179,21 @@ export default function Blog() {
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-6xl font-bold text-slate-300 dark:text-slate-700">
+                        <div className="w-full h-full flex items-center justify-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-300 dark:text-slate-700">
                           {post.title[0]}
                         </div>
                       )}
                       {post.category && (
-                        <div className="absolute top-3 right-3">
-                          <span className="px-3 py-1 rounded-full bg-purple-500 text-white text-xs font-semibold capitalize">
+                        <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                          <span className="px-2 sm:px-3 py-1 rounded-full bg-purple-500 text-white text-xs font-semibold capitalize">
                             {post.category}
                           </span>
                         </div>
                       )}
                     </div>
                     
-                    <div className="p-6 flex-1 flex flex-col">
-                      <div className="flex items-center gap-3 mb-3 text-xs text-slate-600 dark:text-slate-400">
+                    <div className="p-4 sm:p-6 flex-1 flex flex-col">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2 sm:mb-3 text-xs text-slate-600 dark:text-slate-400">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {format(new Date(post.published_date || post.created_date), "MMM d, yyyy")}
@@ -209,15 +210,15 @@ export default function Blog() {
                         )}
                       </div>
                       
-                      <h3 className="text-xl font-bold mb-3 group-hover:text-blue-500 transition-colors line-clamp-2">
+                      <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 group-hover:text-blue-500 transition-colors line-clamp-2">
                         {post.title}
                       </h3>
                       
-                      <p className="text-slate-600 dark:text-slate-400 mb-4 line-clamp-3 flex-1">
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 sm:mb-4 line-clamp-3 flex-1">
                         {post.excerpt}
                       </p>
                       
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1 sm:gap-2">
                         {post.tags?.slice(0, 3).map((tag, i) => (
                           <span
                             key={i}
@@ -239,9 +240,9 @@ export default function Blog() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-20"
+            className="text-center py-12 sm:py-16 md:py-20"
           >
-            <p className="text-lg text-slate-600 dark:text-slate-400">
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400">
               No blog posts found {searchQuery || selectedTag !== "all" ? "matching your filters" : ""}
             </p>
           </motion.div>

@@ -148,49 +148,50 @@ export default function Contact() {
   });
 
   return (
-    <div className="min-h-screen py-20 px-6">
+    <div className="min-h-screen py-8 sm:py-12 md:py-16 lg:py-20 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
+        
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 md:mb-16"
         >
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 md:mb-6">
             Get In <span className="gradient-text">Touch</span>
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto px-2 sm:px-4">
             {contactInfo?.description || "Have a project in mind or just want to chat? I'd love to hear from you!"}
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12">
           {/* Contact Info */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="space-y-8"
+            className="space-y-6 sm:space-y-8"
           >
             {/* Basic Contact Card - Always show but with conditional content */}
-            <Card className="p-8 glass border-0">
-              <div className="space-y-6">
+            <Card className="p-4 sm:p-6 md:p-8 glass border-0">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Email */}
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                    <Mail className="w-6 h-6 text-blue-500" />
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-500" />
                   </div>
-                  <div>
-                    <h3 className="font-bold">Email</h3>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-sm sm:text-base md:text-lg">Email</h3>
                     {contactInfo?.email ? (
                       <a 
                         href={`mailto:${contactInfo.email}`}
-                        className="text-slate-600 dark:text-slate-400 hover:text-blue-500 transition-colors"
+                        className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 hover:text-blue-500 transition-colors truncate block"
                       >
                         {contactInfo.email}
                       </a>
                     ) : (
-                      <p className="text-slate-400 dark:text-slate-600 italic">
+                      <p className="text-xs sm:text-sm md:text-base text-slate-400 dark:text-slate-600 italic">
                         Email not configured
                       </p>
                     )}
@@ -198,21 +199,21 @@ export default function Contact() {
                 </div>
 
                 {/* Phone */}
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
-                    <Phone className="w-6 h-6 text-green-500" />
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-green-500" />
                   </div>
-                  <div>
-                    <h3 className="font-bold">Phone</h3>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-sm sm:text-base md:text-lg">Phone</h3>
                     {contactInfo?.phone ? (
                       <a 
                         href={`tel:${contactInfo.phone}`}
-                        className="text-slate-600 dark:text-slate-400 hover:text-green-500 transition-colors"
+                        className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 hover:text-green-500 transition-colors truncate block"
                       >
                         {contactInfo.phone}
                       </a>
                     ) : (
-                      <p className="text-slate-400 dark:text-slate-600 italic">
+                      <p className="text-xs sm:text-sm md:text-base text-slate-400 dark:text-slate-600 italic">
                         Phone not configured
                       </p>
                     )}
@@ -220,18 +221,18 @@ export default function Contact() {
                 </div>
 
                 {/* Address */}
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center">
-                    <MapPin className="w-6 h-6 text-purple-500" />
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-purple-500" />
                   </div>
-                  <div>
-                    <h3 className="font-bold">Location</h3>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-sm sm:text-base md:text-lg">Location</h3>
                     {contactInfo?.address ? (
-                      <p className="text-slate-600 dark:text-slate-400">
+                      <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400">
                         {contactInfo.address}
                       </p>
                     ) : (
-                      <p className="text-slate-400 dark:text-slate-600 italic">
+                      <p className="text-xs sm:text-sm md:text-base text-slate-400 dark:text-slate-600 italic">
                         Location not configured
                       </p>
                     )}
@@ -239,23 +240,23 @@ export default function Contact() {
                 </div>
 
                 {/* Website */}
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center">
-                    <Globe className="w-6 h-6 text-orange-500" />
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                    <Globe className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-orange-500" />
                   </div>
-                  <div>
-                    <h3 className="font-bold">Website</h3>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-sm sm:text-base md:text-lg">Website</h3>
                     {contactInfo?.website ? (
                       <a 
                         href={contactInfo.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-slate-600 dark:text-slate-400 hover:text-orange-500 transition-colors"
+                        className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 hover:text-orange-500 transition-colors truncate block"
                       >
                         {contactInfo.website.replace(/^https?:\/\//, '')}
                       </a>
                     ) : (
-                      <p className="text-slate-400 dark:text-slate-600 italic">
+                      <p className="text-xs sm:text-sm md:text-base text-slate-400 dark:text-slate-600 italic">
                         Website not configured
                       </p>
                     )}
@@ -265,33 +266,33 @@ export default function Contact() {
             </Card>
 
             {/* Social Media Card - Always show but with conditional content */}
-            <Card className="p-8 glass border-0">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center">
-                  <MessageSquare className="w-6 h-6 text-purple-500" />
+            <Card className="p-4 sm:p-6 md:p-8 glass border-0">
+              <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                  <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-purple-500" />
                 </div>
-                <div>
-                  <h3 className="font-bold">Social Media</h3>
-                  <p className="text-slate-600 dark:text-slate-400">
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-bold text-sm sm:text-base md:text-lg">Social Media</h3>
+                  <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400">
                     {hasSocialInfo ? "Let's connect online" : "Social links not configured"}
                   </p>
                 </div>
               </div>
               
-              <div className="flex gap-4">
+              <div className="flex gap-3 sm:gap-4">
                 {contactInfo?.github ? (
                   <a
                     href={contactInfo.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-gray-700 hover:text-white transition-all"
+                    className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-gray-700 hover:text-white transition-all flex-shrink-0"
                     title="GitHub"
                   >
-                    <Github className="w-5 h-5" />
+                    <Github className="w-4 h-4 sm:w-5 sm:h-5" />
                   </a>
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center opacity-50" title="GitHub not configured">
-                    <Github className="w-5 h-5 text-slate-400" />
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center opacity-50 flex-shrink-0" title="GitHub not configured">
+                    <Github className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
                   </div>
                 )}
 
@@ -300,14 +301,14 @@ export default function Contact() {
                     href={contactInfo.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
+                    className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all flex-shrink-0"
                     title="LinkedIn"
                   >
-                    <Linkedin className="w-5 h-5" />
+                    <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />
                   </a>
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center opacity-50" title="LinkedIn not configured">
-                    <Linkedin className="w-5 h-5 text-slate-400" />
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center opacity-50 flex-shrink-0" title="LinkedIn not configured">
+                    <Linkedin className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
                   </div>
                 )}
 
@@ -316,35 +317,35 @@ export default function Contact() {
                     href={contactInfo.twitter}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-blue-400 hover:text-white transition-all"
+                    className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-blue-400 hover:text-white transition-all flex-shrink-0"
                     title="Twitter"
                   >
-                    <Twitter className="w-5 h-5" />
+                    <Twitter className="w-4 h-4 sm:w-5 sm:h-5" />
                   </a>
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center opacity-50" title="Twitter not configured">
-                    <Twitter className="w-5 h-5 text-slate-400" />
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center opacity-50 flex-shrink-0" title="Twitter not configured">
+                    <Twitter className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
                   </div>
                 )}
               </div>
 
               {!hasSocialInfo && (
-                <p className="text-xs text-slate-500 mt-4 text-center">
+                <p className="text-xs text-slate-500 mt-3 sm:mt-4 text-center">
                   Configure social links in the admin panel
                 </p>
               )}
             </Card>
 
             {/* Availability Card - Always show */}
-            <Card className="p-8 glass border-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10">
-              <h3 className="font-bold text-lg mb-2">
+            <Card className="p-4 sm:p-6 md:p-8 glass border-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10">
+              <h3 className="font-bold text-base sm:text-lg md:text-xl mb-2">
                 {contactInfo?.availability || 'Open to Opportunities'}
               </h3>
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400">
                 {contactInfo?.description || "I'm currently available for freelance work and full-time positions. Let's discuss how we can work together!"}
               </p>
               {!hasContactInfo && (
-                <p className="text-xs text-blue-600 dark:text-blue-400 mt-3">
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 sm:mt-3">
                   💡 Configure your contact information in the admin panel
                 </p>
               )}
@@ -357,26 +358,26 @@ export default function Contact() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="p-8 glass border-0">
+            <Card className="p-4 sm:p-6 md:p-8 glass border-0 h-full">
               {submitted ? (
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="text-center py-12"
+                  className="text-center py-6 sm:py-8 md:py-12"
                 >
-                  <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="w-8 h-8 text-green-500" />
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                    <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-green-500" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-2">Message Sent!</h3>
-                  <p className="text-slate-600 dark:text-slate-400">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">Message Sent!</h3>
+                  <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400">
                     Thank you for reaching out. I'll get back to you soon!
                   </p>
                 </motion.div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 md:space-y-6" noValidate>
                   {/* Name Field */}
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium mb-2">
+                    <label htmlFor="name" className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                       Your Name <span className="text-red-500">*</span>
                     </label>
                     <Input
@@ -386,7 +387,7 @@ export default function Contact() {
                       onChange={handleChange}
                       onBlur={handleBlur}
                       placeholder="John Doe"
-                      className={`glass transition-all ${
+                      className={`glass transition-all text-sm sm:text-base ${
                         hasError('name') 
                           ? 'border-red-500 focus-visible:ring-red-500' 
                           : touched.name && !errors.name 
@@ -401,11 +402,11 @@ export default function Contact() {
                         y: hasError('name') ? 0 : -10
                       }}
                       transition={{ duration: 0.2 }}
-                      className="flex items-center gap-1 mt-2 text-sm text-red-500"
+                      className="flex items-center gap-1 mt-1 sm:mt-2 text-xs sm:text-sm text-red-500"
                     >
                       {hasError('name') && (
                         <>
-                          <AlertCircle className="w-4 h-4" />
+                          <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                           <span>{errors.name}</span>
                         </>
                       )}
@@ -414,7 +415,7 @@ export default function Contact() {
 
                   {/* Email Field */}
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium mb-2">
+                    <label htmlFor="email" className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                       Email Address <span className="text-red-500">*</span>
                     </label>
                     <Input
@@ -425,7 +426,7 @@ export default function Contact() {
                       onChange={handleChange}
                       onBlur={handleBlur}
                       placeholder="john@example.com"
-                      className={`glass transition-all ${
+                      className={`glass transition-all text-sm sm:text-base ${
                         hasError('email') 
                           ? 'border-red-500 focus-visible:ring-red-500' 
                           : touched.email && !errors.email 
@@ -440,11 +441,11 @@ export default function Contact() {
                         y: hasError('email') ? 0 : -10
                       }}
                       transition={{ duration: 0.2 }}
-                      className="flex items-center gap-1 mt-2 text-sm text-red-500"
+                      className="flex items-center gap-1 mt-1 sm:mt-2 text-xs sm:text-sm text-red-500"
                     >
                       {hasError('email') && (
                         <>
-                          <AlertCircle className="w-4 h-4" />
+                          <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                           <span>{errors.email}</span>
                         </>
                       )}
@@ -453,7 +454,7 @@ export default function Contact() {
 
                   {/* Subject Field */}
                   <div>
-                    <label htmlFor="subject" className="block text-sm font-medium mb-2">
+                    <label htmlFor="subject" className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                       Subject <span className="text-red-500">*</span>
                     </label>
                     <Input
@@ -463,7 +464,7 @@ export default function Contact() {
                       onChange={(e) => handleChange(e)}
                       onBlur={handleBlur}
                       placeholder="Project inquiry"
-                      className={`glass transition-all ${
+                      className={`glass transition-all text-sm sm:text-base ${
                         hasError('subject') 
                           ? 'border-red-500 focus-visible:ring-red-500' 
                           : touched.subject && !errors.subject 
@@ -478,11 +479,11 @@ export default function Contact() {
                         y: hasError('subject') ? 0 : -10
                       }}
                       transition={{ duration: 0.2 }}
-                      className="flex items-center gap-1 mt-2 text-sm text-red-500"
+                      className="flex items-center gap-1 mt-1 sm:mt-2 text-xs sm:text-sm text-red-500"
                     >
                       {hasError('subject') && (
                         <>
-                          <AlertCircle className="w-4 h-4" />
+                          <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                           <span>{errors.subject}</span>
                         </>
                       )}
@@ -491,7 +492,7 @@ export default function Contact() {
 
                   {/* Message Field */}
                   <div>
-                    <label htmlFor="message" className="block text-sm font-medium mb-2">
+                    <label htmlFor="message" className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                       Message <span className="text-red-500">*</span>
                     </label>
                     <Textarea
@@ -501,8 +502,8 @@ export default function Contact() {
                       onChange={handleChange}
                       onBlur={handleBlur}
                       placeholder="Tell me about your project..."
-                      rows={6}
-                      className={`glass resize-none transition-all ${
+                      rows={4}
+                      className={`glass resize-none transition-all text-sm sm:text-base ${
                         hasError('message') 
                           ? 'border-red-500 focus-visible:ring-red-500' 
                           : touched.message && !errors.message 
@@ -517,11 +518,11 @@ export default function Contact() {
                         y: hasError('message') ? 0 : -10
                       }}
                       transition={{ duration: 0.2 }}
-                      className="flex items-center gap-1 mt-2 text-sm text-red-500"
+                      className="flex items-center gap-1 mt-1 sm:mt-2 text-xs sm:text-sm text-red-500"
                     >
                       {hasError('message') && (
                         <>
-                          <AlertCircle className="w-4 h-4" />
+                          <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                           <span>{errors.message}</span>
                         </>
                       )}
@@ -530,7 +531,7 @@ export default function Contact() {
                       <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="mt-2 text-sm text-slate-500"
+                        className="mt-1 sm:mt-2 text-xs sm:text-sm text-slate-500"
                       >
                         {formData.message.length} characters
                       </motion.div>
@@ -540,7 +541,7 @@ export default function Contact() {
                   <Button
                     type="submit"
                     disabled={sendMessageMutation.isPending || Object.keys(errors).some(key => errors[key])}
-                    className="w-full bg-blue-500 hover:bg-blue-600 gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-blue-500 hover:bg-blue-600 gap-2 group disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                     size="lg"
                   >
                     {sendMessageMutation.isPending ? (
@@ -549,14 +550,14 @@ export default function Contact() {
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         >
-                          <Send className="w-4 h-4" />
+                          <Send className="w-3 h-3 sm:w-4 sm:h-4" />
                         </motion.div>
                         Sending...
                       </>
                     ) : (
                       <>
                         Send Message
-                        <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        <Send className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
                   </Button>

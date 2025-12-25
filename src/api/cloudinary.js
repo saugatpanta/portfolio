@@ -55,19 +55,7 @@ export const uploadToCloudinary = async (file) => {
 export const deleteFromCloudinary = async (imageUrl) => {
   try {
     console.log('Cloudinary delete requested for:', imageUrl);
-    
-    // Note: Client-side deletion is not recommended for security reasons
-    // In a production app, you should implement this on your server
     console.warn('Client-side Cloudinary deletion is disabled for security. Implement server-side deletion instead.');
-    
-    // For now, we'll just log the deletion attempt
-    // In a real implementation, you'd call your backend API:
-    // const response = await fetch('/api/cloudinary/delete', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ imageUrl })
-    // });
-    
     return true; // Simulate successful deletion
   } catch (error) {
     console.error('Cloudinary delete error:', error);
@@ -83,10 +71,6 @@ const extractPublicId = (url) => {
     if (!url || !url.includes('cloudinary.com')) {
       return null;
     }
-    
-    // Cloudinary URL format examples:
-    // https://res.cloudinary.com/cloudname/image/upload/v1234567/folder/filename.jpg
-    // https://res.cloudinary.com/cloudname/image/upload/folder/filename.jpg
     
     const urlParts = url.split('/upload/');
     if (urlParts.length < 2) return null;

@@ -62,18 +62,18 @@ export default function BlogPost() {
 
   if (!post) {
     return (
-      <div className="min-h-screen py-20 px-6">
+      <div className="min-h-screen py-12 sm:py-16 md:py-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="text-4xl font-bold mb-4">Post Not Found</h1>
-            <p className="text-slate-600 dark:text-slate-400 mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Post Not Found</h1>
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 mb-6 sm:mb-8">
               The blog post you're looking for doesn't exist or has been removed.
             </p>
             <Link to={createPageUrl("Blog")}>
-              <Button className="gap-2">
+              <Button className="gap-2 text-sm sm:text-base">
                 <ArrowLeft className="w-4 h-4" />
                 Back to Blog
               </Button>
@@ -89,16 +89,17 @@ export default function BlogPost() {
     .slice(0, 3);
 
   return (
-    <div className="min-h-screen py-20 px-6">
+    <div className="min-h-screen py-12 sm:py-16 md:py-20 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
+        
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
           <Link to={createPageUrl("Blog")}>
-            <Button variant="ghost" className="gap-2">
+            <Button variant="ghost" className="gap-2 text-sm sm:text-base">
               <ArrowLeft className="w-4 h-4" />
               Back to Blog
             </Button>
@@ -117,9 +118,9 @@ export default function BlogPost() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="mb-4"
+              className="mb-3 sm:mb-4"
             >
-              <span className="px-4 py-2 rounded-full bg-purple-500/10 text-purple-500 text-sm font-semibold capitalize">
+              <span className="px-3 sm:px-4 py-1 sm:py-2 rounded-full bg-purple-500/10 text-purple-500 text-xs sm:text-sm font-semibold capitalize">
                 {post.category}
               </span>
             </motion.div>
@@ -130,7 +131,7 @@ export default function BlogPost() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight"
           >
             {post.title}
           </motion.h1>
@@ -140,23 +141,23 @@ export default function BlogPost() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="flex flex-wrap items-center gap-6 mb-8 text-slate-600 dark:text-slate-400"
+            className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-6 mb-6 sm:mb-8 text-sm sm:text-base text-slate-600 dark:text-slate-400"
           >
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+            <div className="flex items-center gap-2 order-1">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm sm:text-base">
                 {post.author?.[0] || "A"}
               </div>
               <span className="font-medium">{post.author || "Anonymous"}</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 order-3 sm:order-2">
               <Calendar className="w-4 h-4" />
               {format(new Date(post.published_date || post.created_date), "MMMM d, yyyy")}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 order-4">
               <Clock className="w-4 h-4" />
               {post.reading_time || 5} min read
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 order-5">
               <Eye className="w-4 h-4" />
               {post.views || 0} views
             </div>
@@ -164,10 +165,10 @@ export default function BlogPost() {
               variant="ghost"
               size="sm"
               onClick={handleShare}
-              className="gap-2 ml-auto"
+              className="gap-2 order-2 sm:order-last mt-2 sm:mt-0 ml-0 sm:ml-auto"
             >
               <Share2 className="w-4 h-4" />
-              Share
+              <span className="hidden sm:inline">Share</span>
             </Button>
           </motion.div>
 
@@ -177,12 +178,12 @@ export default function BlogPost() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="mb-12 rounded-2xl overflow-hidden"
+              className="mb-8 sm:mb-12 rounded-xl sm:rounded-2xl overflow-hidden"
             >
               <img
                 src={post.featured_image}
                 alt={post.title}
-                className="w-full h-auto max-h-[500px] object-cover"
+                className="w-full h-auto max-h-[300px] sm:max-h-[400px] md:max-h-[500px] object-cover"
               />
             </motion.div>
           )}
@@ -193,14 +194,14 @@ export default function BlogPost() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
           >
-            <Card className="p-8 md:p-12 glass border-0 mb-12">
+            <Card className="p-4 sm:p-6 md:p-8 lg:p-12 glass border-0 mb-8 sm:mb-12">
               <ReactMarkdown
-                className="prose prose-lg dark:prose-invert max-w-none
+                className="prose prose-sm sm:prose-base lg:prose-lg dark:prose-invert max-w-none
                   prose-headings:font-bold prose-headings:text-slate-900 dark:prose-headings:text-slate-100
                   prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-p:leading-relaxed
                   prose-a:text-blue-500 prose-a:no-underline hover:prose-a:underline
                   prose-strong:text-slate-900 dark:prose-strong:text-slate-100
-                  prose-code:text-sm prose-code:bg-slate-100 dark:prose-code:bg-slate-800 
+                  prose-code:text-xs sm:text-sm prose-code:bg-slate-100 dark:prose-code:bg-slate-800 
                   prose-code:px-2 prose-code:py-1 prose-code:rounded
                   prose-pre:bg-slate-900 prose-pre:text-slate-100
                   prose-img:rounded-lg prose-img:shadow-lg
@@ -218,18 +219,18 @@ export default function BlogPost() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
-              className="mb-12"
+              className="mb-8 sm:mb-12"
             >
-              <Card className="p-6 glass border-0">
-                <div className="flex items-center gap-2 mb-4">
-                  <TagIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                  <h3 className="font-semibold">Tags</h3>
+              <Card className="p-4 sm:p-6 glass border-0">
+                <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                  <TagIcon className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-400" />
+                  <h3 className="font-semibold text-sm sm:text-base">Tags</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {post.tags.map((tag, i) => (
                     <span
                       key={i}
-                      className="px-4 py-2 text-sm font-medium rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors cursor-pointer"
+                      className="px-3 py-1 text-xs sm:text-sm font-medium rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors cursor-pointer"
                     >
                       {tag}
                     </span>
@@ -246,8 +247,8 @@ export default function BlogPost() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9 }}
             >
-              <h2 className="text-3xl font-bold mb-8">Related Posts</h2>
-              <div className="grid md:grid-cols-3 gap-6">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8">Related Posts</h2>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {relatedPosts.map((relatedPost, index) => (
                   <motion.div
                     key={relatedPost.id}
@@ -257,7 +258,7 @@ export default function BlogPost() {
                   >
                     <Link to={createPageUrl("BlogPost") + `?slug=${relatedPost.slug}`}>
                       <Card className="group overflow-hidden border-0 glass hover:shadow-xl transition-all duration-300 cursor-pointer h-full">
-                        <div className="relative h-40 overflow-hidden bg-gradient-to-br from-blue-500/10 to-purple-500/10">
+                        <div className="relative h-32 sm:h-40 overflow-hidden bg-gradient-to-br from-blue-500/10 to-purple-500/10">
                           {relatedPost.featured_image ? (
                             <img
                               src={relatedPost.featured_image}
@@ -265,16 +266,16 @@ export default function BlogPost() {
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-slate-300 dark:text-slate-700">
+                            <div className="w-full h-full flex items-center justify-center text-2xl sm:text-3xl md:text-4xl font-bold text-slate-300 dark:text-slate-700">
                               {relatedPost.title[0]}
                             </div>
                           )}
                         </div>
-                        <div className="p-4">
-                          <h3 className="font-bold mb-2 line-clamp-2 group-hover:text-blue-500 transition-colors">
+                        <div className="p-3 sm:p-4">
+                          <h3 className="font-bold text-sm sm:text-base mb-1 sm:mb-2 line-clamp-2 group-hover:text-blue-500 transition-colors">
                             {relatedPost.title}
                           </h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+                          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
                             {relatedPost.excerpt}
                           </p>
                         </div>

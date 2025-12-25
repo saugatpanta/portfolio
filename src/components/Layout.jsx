@@ -27,13 +27,24 @@ export default function Layout({ children, currentPageName }) {
   // Check screen size
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 1024);
     };
 
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
+
+  // Close mobile menu when window is resized to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024 && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -97,6 +108,7 @@ export default function Layout({ children, currentPageName }) {
         body {
           background: rgb(var(--color-bg));
           color: rgb(var(--color-text));
+          overflow-x: hidden;
         }
 
         .glass {
@@ -112,16 +124,32 @@ export default function Layout({ children, currentPageName }) {
           background-clip: text;
         }
 
-        /* Responsive text sizes */
-        @media (max-width: 640px) {
-          .responsive-text {
-            font-size: 0.875rem;
-          }
+        /* Prevent body scroll when mobile menu is open */
+        body.menu-open {
+          overflow: hidden;
+        }
+
+        /* Hide scrollbar but allow scrolling */
+        .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none; /* Chrome, Safari and Opera */
         }
       `}</style>
 
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-        {/* Navigation */}
+      {/* Add body class when mobile menu is open */}
+      {mobileMenuOpen && (
+        <style>{`
+          body {
+            overflow: hidden;
+          }
+        `}</style>
+      )}
+
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-x-hidden">
+        {/* Navigation - FIXED VERSION */}
         <motion.nav
           initial={{ y: -100 }}
           animate={{ y: 0 }}
@@ -129,84 +157,98 @@ export default function Layout({ children, currentPageName }) {
             scrolled ? "glass shadow-lg" : "bg-transparent"
           }`}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3">
             <div className="flex items-center justify-between">
               {/* Logo */}
-              <Link to={createPageUrl("Home")} className="flex-shrink-0">
+              <Link 
+                to={createPageUrl("Home")} 
+                className="flex-shrink-0 flex items-center min-w-0"
+              >
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="text-xl sm:text-2xl font-bold gradient-text"
+                  className="text-lg sm:text-xl font-bold gradient-text whitespace-nowrap overflow-hidden text-ellipsis"
                 >
                   Portfolio
                 </motion.div>
               </Link>
 
-              {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-8">
-                {navigationItems.map((item) => (
-                  <Link key={item.title} to={item.url}>
-                    <motion.div
-                      whileHover={{ y: -2 }}
-                      className={`text-sm font-medium transition-colors responsive-text ${
-                        isActive(item.url)
-                          ? "text-blue-500"
-                          : "text-slate-600 dark:text-slate-400 hover:text-blue-500"
-                      }`}
+              {/* Desktop Navigation - HIDDEN ON MOBILE & TABLET */}
+              <div className="hidden lg:flex items-center space-x-1 xl:space-x-2">
+                <div className="flex items-center space-x-1 xl:space-x-2 overflow-x-auto no-scrollbar max-w-[500px] xl:max-w-[600px]">
+                  {navigationItems.map((item) => (
+                    <Link 
+                      key={item.title} 
+                      to={item.url} 
+                      className="px-2 xl:px-3 py-2 flex-shrink-0"
                     >
-                      {item.title}
-                    </motion.div>
-                  </Link>
-                ))}
+                      <motion.div
+                        whileHover={{ y: -2 }}
+                        className={`text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+                          isActive(item.url)
+                            ? "text-blue-500"
+                            : "text-slate-600 dark:text-slate-400 hover:text-blue-500"
+                        }`}
+                      >
+                        {item.title}
+                      </motion.div>
+                    </Link>
+                  ))}
+                </div>
+                
+                {/* Admin link */}
                 {isAuthenticated ? (
-                  <Link to={createPageUrl("Admin")}>
+                  <Link 
+                    to={createPageUrl("Admin")} 
+                    className="px-2 xl:px-3 py-2 flex-shrink-0 ml-1 xl:ml-2"
+                  >
                     <motion.div
                       whileHover={{ y: -2 }}
-                      className="text-sm font-medium text-purple-500 hover:text-purple-400 flex items-center gap-1 responsive-text"
+                      className="text-xs sm:text-sm font-medium text-purple-500 hover:text-purple-400 flex items-center gap-1 whitespace-nowrap"
                     >
-                      <Shield className="w-4 h-4" />
-                      Admin
+                      <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span>Admin</span>
                     </motion.div>
                   </Link>
                 ) : (
                   <button
                     onClick={() => firebaseClient.auth.redirectToLogin(createPageUrl("Admin"))}
-                    className="text-sm font-medium text-purple-500 hover:text-purple-400 flex items-center gap-1 responsive-text"
+                    className="px-2 xl:px-3 py-2 flex-shrink-0 ml-1 xl:ml-2 text-xs sm:text-sm font-medium text-purple-500 hover:text-purple-400 flex items-center gap-1 whitespace-nowrap"
                   >
-                    <Shield className="w-4 h-4" />
-                    Admin Login
+                    <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>Admin</span>
                   </button>
                 )}
               </div>
 
               {/* Right side controls */}
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-1 sm:gap-2">
                 {/* Theme Toggle */}
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsDark(!isDark)}
-                  className="rounded-full w-8 h-8 sm:w-10 sm:h-10"
+                  className="rounded-full w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9"
                   aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
                 >
                   {isDark ? (
-                    <Sun className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-4.5 md:h-4.5" />
                   ) : (
-                    <Moon className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-4.5 md:h-4.5" />
                   )}
                 </Button>
 
-                {/* Mobile Menu Button */}
+                {/* Mobile Menu Button - SHOW ON MOBILE & TABLET */}
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="md:hidden rounded-full w-8 h-8 sm:w-10 sm:h-10"
+                  className="lg:hidden rounded-full w-7 h-7 sm:w-8 sm:h-8"
                   aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
                 >
                   {mobileMenuOpen ? (
-                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   ) : (
-                    <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <Menu className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   )}
                 </Button>
               </div>
@@ -214,61 +256,67 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </motion.nav>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - IMPROVED FOR BETTER MOBILE EXPERIENCE */}
         <AnimatePresence>
           {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, x: "100%" }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: "100%" }}
-              transition={{ type: "spring", damping: 25 }}
-              className="fixed inset-0 z-40 md:hidden"
-            >
-              <div 
-                className="absolute inset-0 bg-black/50" 
-                onClick={() => setMobileMenuOpen(false)} 
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+                onClick={() => setMobileMenuOpen(false)}
                 aria-hidden="true"
               />
-              <div className="absolute right-0 top-0 bottom-0 w-full max-w-xs glass p-4 sm:p-6 pt-16 sm:pt-20 overflow-y-auto">
-                <div className="flex flex-col gap-2 sm:gap-3">
+              
+              {/* Menu Panel */}
+              <motion.div
+                initial={{ opacity: 0, x: "100%" }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 100 }}
+                className="fixed inset-y-0 right-0 z-50 w-full max-w-xs sm:max-w-sm glass p-4 sm:p-6 pt-20 sm:pt-24 overflow-y-auto lg:hidden"
+              >
+                <div className="flex flex-col gap-2">
                   {navigationItems.map((item, index) => (
                     <motion.div
                       key={item.title}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
+                      transition={{ delay: index * 0.05 }}
                     >
                       <Link
                         to={item.url}
                         onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                        className={`flex items-center gap-3 p-3 sm:p-4 rounded-lg transition-colors ${
                           isActive(item.url)
-                            ? "bg-blue-500/10 text-blue-500"
-                            : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                            ? "bg-blue-500/10 text-blue-500 border-l-4 border-blue-500"
+                            : "hover:bg-slate-100 dark:hover:bg-slate-800 border-l-4 border-transparent"
                         }`}
                       >
                         <item.icon className="w-5 h-5 flex-shrink-0" />
-                        <span className="font-medium responsive-text">{item.title}</span>
+                        <span className="font-medium text-base sm:text-lg">{item.title}</span>
                       </Link>
                     </motion.div>
                   ))}
                   
-                  <Separator className="my-1 sm:my-2" />
+                  <Separator className="my-2" />
                   
                   {/* Admin Login/Logout in Mobile Menu */}
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: navigationItems.length * 0.1 }}
+                    transition={{ delay: navigationItems.length * 0.05 }}
                   >
                     {isAuthenticated ? (
                       <Link
                         to={createPageUrl("Admin")}
                         onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-purple-500/10 text-purple-500"
+                        className="flex items-center gap-3 p-3 sm:p-4 rounded-lg hover:bg-purple-500/10 text-purple-500 border-l-4 border-purple-500"
                       >
                         <Shield className="w-5 h-5 flex-shrink-0" />
-                        <span className="font-medium responsive-text">Admin</span>
+                        <span className="font-medium text-base sm:text-lg">Admin</span>
                       </Link>
                     ) : (
                       <button
@@ -276,25 +324,25 @@ export default function Layout({ children, currentPageName }) {
                           setMobileMenuOpen(false);
                           firebaseClient.auth.redirectToLogin(createPageUrl("Admin"));
                         }}
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-purple-500/10 text-purple-500 w-full text-left"
+                        className="flex items-center gap-3 p-3 sm:p-4 rounded-lg hover:bg-purple-500/10 text-purple-500 border-l-4 border-purple-500 w-full text-left"
                       >
                         <Shield className="w-5 h-5 flex-shrink-0" />
-                        <span className="font-medium responsive-text">Admin Login</span>
+                        <span className="font-medium text-base sm:text-lg">Admin Login</span>
                       </button>
                     )}
                   </motion.div>
 
-                  <Separator className="my-1 sm:my-2" />
+                  <Separator className="my-2" />
                   
                   {/* Dark Mode Toggle in Mobile Menu */}
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: (navigationItems.length + 1) * 0.1 }}
+                    transition={{ delay: (navigationItems.length + 1) * 0.05 }}
                   >
                     <button
                       onClick={() => setIsDark(!isDark)}
-                      className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      className="flex items-center justify-between w-full p-3 sm:p-4 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
                     >
                       <div className="flex items-center gap-3">
@@ -303,32 +351,27 @@ export default function Layout({ children, currentPageName }) {
                         ) : (
                           <Moon className="w-5 h-5 flex-shrink-0" />
                         )}
-                        <span className="font-medium responsive-text">
+                        <span className="font-medium text-base sm:text-lg">
                           {isDark ? "Light Mode" : "Dark Mode"}
                         </span>
                       </div>
-                      <motion.div
-                        className={`w-12 h-6 rounded-full p-1 flex items-center ${
-                          isDark ? "bg-blue-500" : "bg-slate-300"
-                        }`}
-                        animate={{ backgroundColor: isDark ? "rgb(59, 130, 246)" : "rgb(203, 213, 225)" }}
-                      >
-                        <motion.div
-                          className="w-4 h-4 rounded-full bg-white shadow-md"
-                          animate={{ x: isDark ? 24 : 0 }}
-                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                        />
-                      </motion.div>
+                      <div className={`w-12 h-6 rounded-full p-1 flex items-center ${
+                        isDark ? "bg-blue-500" : "bg-slate-300"
+                      }`}>
+                        <div className={`w-4 h-4 rounded-full bg-white shadow-md transform transition-transform duration-300 ${
+                          isDark ? "translate-x-6" : "translate-x-0"
+                        }`} />
+                      </div>
                     </button>
                   </motion.div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
 
         {/* Main Content */}
-        <main className="pt-16 sm:pt-20">
+        <main className="pt-14 sm:pt-16 md:pt-20">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -343,9 +386,9 @@ export default function Layout({ children, currentPageName }) {
         </main>
 
         {/* Footer */}
-        <footer className="mt-12 sm:mt-16 lg:mt-20 py-8 sm:py-12 border-t border-slate-200 dark:border-slate-800">
+        <footer className="mt-8 sm:mt-12 md:mt-16 py-6 sm:py-8 md:py-12 border-t border-slate-200 dark:border-slate-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p className="text-slate-600 dark:text-slate-400 text-sm responsive-text">
+            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
               © {new Date().getFullYear()} Portfolio. Built with React & Firebase.
             </p>
           </div>
