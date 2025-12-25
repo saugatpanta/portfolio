@@ -85,7 +85,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
     github: "github.com/saugatpanta",
     
     // Professional Summary
-    summary: "Aspiring Full-Stack Developer currently pursuing BSc in Computer Science and Information Technology with a strong foundation in modern web technologies. Passionate about creating efficient, scalable solutions and continuously expanding my technical skills through practical projects and academic learning.",
+    summary: "Aspiring Full-Stack Developer currently pursuing Bachelors in Computer Science and Information Technology with a strong foundation in modern web technologies. Passionate about creating efficient, scalable solutions and continuously expanding my technical skills through practical projects and academic learning.",
     
     // Education - Updated with accurate grades
     education: [
@@ -1822,7 +1822,7 @@ export default function About() {
   const timeline = [
     {
       year: "2024 - Present",
-      title: "BSc CSIT Student at Apex College",
+      title: "BCSIT Student at Apex College",
       description: "Currently in 3rd semester with consistent academic performance improvement (3.08 GPA in 1st sem → 3.59 GPA in 2nd sem)",
       icon: <GraduationCap className="w-5 h-5 text-blue-500" />
     },
@@ -1912,7 +1912,7 @@ export default function About() {
               <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">My Development Journey</h2>
               <div className="space-y-3 sm:space-y-4 text-slate-600 dark:text-slate-400 text-sm sm:text-base">
                 <p>
-                  Hello! I'm Saugat Panta, currently in my 3rd semester of BSc CSIT at Apex College, Kathmandu. 
+                  Hello! I'm Saugat Panta, currently in my 3rd semester of BCSIT at Apex College, Kathmandu. 
                   My journey into web development started during my +2 Science years, where I first discovered 
                   my interest in programming while studying Computer Science.
                 </p>
@@ -2049,3 +2049,4 @@ export default function About() {
     </div>
   );
 }
+
