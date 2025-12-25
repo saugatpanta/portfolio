@@ -12,7 +12,7 @@ import {
   Laptop, Cpu, Layout, Smartphone, Terminal, Cloud, Lock,
   FileCode, Palette as PaletteIcon, Smartphone as SmartphoneIcon,
   Globe as GlobeIcon, Code as CodeIcon, Database as DatabaseIcon,
-  Server as ServerIcon, Image as ImageIcon
+  Server as ServerIcon, Image as ImageIcon, Eye, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
+
 
 // Convert image to base64
 const convertImageToBase64 = (url) => {
@@ -40,6 +41,33 @@ const convertImageToBase64 = (url) => {
     img.onerror = reject;
     img.src = url;
   });
+};
+
+// Function to strip Unicode from text for PDF
+const stripUnicodeForPDF = (text) => {
+  if (!text) return '';
+  return text.replace(/[^\x00-\x7F]/g, '');
+};
+
+// Function to get ASCII icon replacements
+const getAsciiIcon = (iconType) => {
+  const iconMap = {
+    // Emoji to ASCII replacements
+    '🎨': '■', '⚡': '◆', '⚛️': '▲', '🎯': '►',
+    '⚙️': '●', '🐍': '♦', '☕': '♣',
+    '💾': '▼', '🐬': '☆', '🍃': '★',
+    '🛠️': '◼', '📊': '◈', '👨‍💻': '▣',
+    '🔥': '◉', '🌐': '◎',
+    // Contact icons
+    '📧': 'E:', '📱': 'P:', '📍': 'L:', '🌐': 'W:',
+    '💻': 'G:', '👔': 'I:', '📞': 'T:',
+    // Section icons
+    '🎓': 'Edu:', '💼': 'Exp:', '🚀': 'Proj:', '🔧': 'Skill:',
+    '🏛️': 'Inst:', '📅': 'Date:', '📊': 'GPA:', '🏆': 'Achiev:',
+    '✅': '✓', '🗣️': 'Lang:', '📜': 'Cert:', '🔒': 'Conf:'
+  };
+  
+  return iconMap[iconType] || '•';
 };
 
 // Advanced CV Generator Modal Component
@@ -91,44 +119,44 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
       }
     ],
     
-    // Technical Skills with proficiency and icons (using strings for PDF)
+    // Technical Skills with proficiency and ASCII icons
     technicalSkills: [
       { 
         category: "Frontend Development", 
-        icon: "🎨", // Changed from React component to string
+        icon: "■", // ASCII square for Frontend
         skills: [
-          { name: "HTML5", proficiency: 90, icon: "🌐" },
-          { name: "CSS3", proficiency: 85, icon: "🎨" },
-          { name: "JavaScript", proficiency: 80, icon: "⚡" },
-          { name: "React", proficiency: 75, icon: "⚛️" },
-          { name: "Tailwind CSS", proficiency: 85, icon: "🎯" }
+          { name: "HTML5", proficiency: 90, icon: "H" },
+          { name: "CSS3", proficiency: 85, icon: "C" },
+          { name: "JavaScript", proficiency: 80, icon: "JS" },
+          { name: "React", proficiency: 75, icon: "R" },
+          { name: "Tailwind CSS", proficiency: 85, icon: "T" }
         ]
       },
       { 
         category: "Backend Development", 
-        icon: "⚙️",
+        icon: "●", // ASCII circle for Backend
         skills: [
-          { name: "Node.js", proficiency: 70, icon: "🟢" },
-          { name: "Python", proficiency: 75, icon: "🐍" },
-          { name: "Java", proficiency: 65, icon: "☕" }
+          { name: "Node.js", proficiency: 70, icon: "N" },
+          { name: "Python", proficiency: 75, icon: "P" },
+          { name: "Java", proficiency: 65, icon: "J" }
         ]
       },
       { 
         category: "Databases", 
-        icon: "💾",
+        icon: "▼", // ASCII triangle for Databases
         skills: [
-          { name: "MySQL", proficiency: 80, icon: "🐬" },
-          { name: "MongoDB", proficiency: 70, icon: "🍃" }
+          { name: "MySQL", proficiency: 80, icon: "SQL" },
+          { name: "MongoDB", proficiency: 70, icon: "M" }
         ]
       },
       { 
         category: "Tools & Technologies", 
-        icon: "🛠️",
+        icon: "◼", // ASCII square for Tools
         skills: [
-          { name: "Git & GitHub", proficiency: 85, icon: "📊" },
-          { name: "VS Code", proficiency: 90, icon: "👨‍💻" },
-          { name: "Figma", proficiency: 70, icon: "🎨" },
-          { name: "Firebase", proficiency: 75, icon: "🔥" }
+          { name: "Git & GitHub", proficiency: 85, icon: "G" },
+          { name: "VS Code", proficiency: 90, icon: "VS" },
+          { name: "Figma", proficiency: 70, icon: "F" },
+          { name: "Firebase", proficiency: 75, icon: "FB" }
         ]
       }
     ],
@@ -223,9 +251,9 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
     
     // Languages
     languages: [
-      { language: "English", proficiency: "Fluent", level: 90, icon: "🇬🇧" },
-      { language: "Nepali", proficiency: "Native", level: 100, icon: "🇳🇵" },
-      { language: "Hindi", proficiency: "Conversational", level: 75, icon: "🇮🇳" }
+      { language: "English", proficiency: "Fluent", level: 90, icon: "EN" },
+      { language: "Nepali", proficiency: "Native", level: 100, icon: "NP" },
+      { language: "Hindi", proficiency: "Conversational", level: 75, icon: "HI" }
     ],
     
     // Hobbies & Interests
@@ -233,17 +261,17 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
       {
         name: "Open Source Contribution",
         description: "Contributing to open source projects and learning from community code",
-        icon: "🌐"
+        icon: "OS"
       },
       {
         name: "Technology Blogs",
         description: "Reading about new web technologies and development trends",
-        icon: "📚"
+        icon: "TB"
       },
       {
         name: "Problem Solving",
         description: "Solving coding challenges on platforms like LeetCode",
-        icon: "🧩"
+        icon: "PS"
       }
     ],
     
@@ -263,7 +291,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
     category: "", 
     name: "", 
     proficiency: 70,
-    icon: "⭐" 
+    icon: "•" 
   });
 
   // Clean up generating state when modal closes
@@ -309,7 +337,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
             pdf.setTextColor(255, 255, 255);
             pdf.setFontSize(10);
             pdf.setFont('helvetica', 'bold');
-            pdf.text(title, x + 5, y + 5.5);
+            pdf.text(stripUnicodeForPDF(title), x + 5, y + 5.5);
             return y + 15;
           };
 
@@ -330,18 +358,18 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           pdf.setTextColor(255, 255, 255);
           pdf.setFontSize(32);
           pdf.setFont('helvetica', 'bold');
-          pdf.text(cvData.fullName.toUpperCase(), 20, 35);
+          pdf.text(stripUnicodeForPDF(cvData.fullName.toUpperCase()), 20, 35);
           
           pdf.setFontSize(14);
           pdf.setFont('helvetica', 'normal');
-          pdf.text("FULL-STACK DEVELOPER | CSIT STUDENT", 20, 45);
+          pdf.text(stripUnicodeForPDF("FULL-STACK DEVELOPER | CSIT STUDENT"), 20, 45);
           
-          // Contact info in modern layout with icons
+          // Contact info in modern layout with ASCII icons
           const contactInfo = [
-            { icon: "📧", text: cvData.email },
-            { icon: "📱", text: cvData.phone },
-            { icon: "📍", text: cvData.location },
-            { icon: "🌐", text: cvData.website }
+            { icon: "E:", text: stripUnicodeForPDF(cvData.email) },
+            { icon: "P:", text: stripUnicodeForPDF(cvData.phone) },
+            { icon: "L:", text: stripUnicodeForPDF(cvData.location) },
+            { icon: "W:", text: stripUnicodeForPDF(cvData.website) }
           ];
 
           pdf.setFontSize(9);
@@ -359,7 +387,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           pdf.setTextColor(...textColor);
           pdf.setFontSize(9);
           pdf.setFont('helvetica', 'normal');
-          const summaryLines = pdf.splitTextToSize(cvData.summary, pageWidth - 40);
+          const summaryLines = pdf.splitTextToSize(stripUnicodeForPDF(cvData.summary), pageWidth - 40);
           pdf.text(summaryLines, 20, yPosition);
           yPosition += summaryLines.length * 4 + 20;
 
@@ -375,14 +403,14 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
             pdf.setFontSize(9);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(...secondaryColor);
-            pdf.text(`${skillCategory.icon} ${skillCategory.category}`, 20, col1Y);
+            pdf.text(`${skillCategory.icon} ${stripUnicodeForPDF(skillCategory.category)}`, 20, col1Y);
             col1Y += 5;
 
             skillCategory.skills.forEach(skill => {
               pdf.setFontSize(8);
               pdf.setFont('helvetica', 'normal');
               pdf.setTextColor(...textColor);
-              pdf.text(`${skill.icon} ${skill.name}`, 20, col1Y);
+              pdf.text(`${skill.icon} ${stripUnicodeForPDF(skill.name)}`, 20, col1Y);
               
               // Modern progress bar
               pdf.setDrawColor(229, 231, 235);
@@ -410,20 +438,20 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
             pdf.setFontSize(10);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(...primaryColor);
-            const nameText = `🚀 ${project.name}`;
+            const nameText = `Proj: ${stripUnicodeForPDF(project.name)}`;
             pdf.text(nameText, 20, col1Y);
             col1Y += 5;
             
             pdf.setFontSize(8);
             pdf.setFont('helvetica', 'italic');
             pdf.setTextColor(...lightTextColor);
-            const techText = `🔧 Technologies: ${project.technologies.join(' • ')}`;
+            const techText = `Tech: ${stripUnicodeForPDF(project.technologies.join(' • '))}`;
             pdf.text(techText, 20, col1Y);
             col1Y += 4;
             
             pdf.setFont('helvetica', 'normal');
             pdf.setTextColor(...textColor);
-            const descLines = pdf.splitTextToSize(project.description, col1Width - 25);
+            const descLines = pdf.splitTextToSize(stripUnicodeForPDF(project.description), col1Width - 25);
             pdf.text(descLines, 20, col1Y);
             col1Y += descLines.length * 3 + 3;
             
@@ -431,7 +459,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
             pdf.setFontSize(7);
             pdf.setTextColor(...secondaryColor);
             project.achievements.slice(0, 2).forEach(achievement => {
-              pdf.text(`✅ ${achievement}`, 22, col1Y);
+              pdf.text(`✓ ${stripUnicodeForPDF(achievement)}`, 22, col1Y);
               col1Y += 3;
             });
             
@@ -445,18 +473,18 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
               pdf.setFontSize(9);
               pdf.setFont('helvetica', 'bold');
               pdf.setTextColor(...primaryColor);
-              pdf.text(`💼 ${exp.position}`, 20, col1Y);
+              pdf.text(`Exp: ${stripUnicodeForPDF(exp.position)}`, 20, col1Y);
               col1Y += 4;
               
               pdf.setFontSize(8);
               pdf.setFont('helvetica', 'bold');
               pdf.setTextColor(...secondaryColor);
-              pdf.text(`🏢 ${exp.company} | 📅 ${exp.period}`, 20, col1Y);
+              pdf.text(`Co: ${stripUnicodeForPDF(exp.company)} | Date: ${stripUnicodeForPDF(exp.period)}`, 20, col1Y);
               col1Y += 4;
               
               pdf.setFont('helvetica', 'normal');
               pdf.setTextColor(...textColor);
-              const descLines = pdf.splitTextToSize(exp.description, col1Width - 25);
+              const descLines = pdf.splitTextToSize(stripUnicodeForPDF(exp.description), col1Width - 25);
               pdf.text(descLines, 20, col1Y);
               col1Y += descLines.length * 3 + 3;
               
@@ -464,7 +492,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
               pdf.setFontSize(7);
               pdf.setTextColor(...lightTextColor);
               exp.responsibilities.slice(0, 2).forEach(resp => {
-                pdf.text(`• ${resp}`, 22, col1Y);
+                pdf.text(`• ${stripUnicodeForPDF(resp)}`, 22, col1Y);
                 col1Y += 3;
               });
               
@@ -478,7 +506,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
             pdf.setFontSize(9);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(...primaryColor);
-            const degreeText = `🎓 ${edu.degree}`;
+            const degreeText = `Edu: ${stripUnicodeForPDF(edu.degree)}`;
             const degreeLines = pdf.splitTextToSize(degreeText, col2Width - 15);
             pdf.text(degreeLines, col1Width + 10, col2Y);
             col2Y += degreeLines.length * 3 + 2;
@@ -486,35 +514,35 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
             pdf.setFontSize(8);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(...secondaryColor);
-            pdf.text(`🏛️ ${edu.institution}`, col1Width + 10, col2Y);
+            pdf.text(`Inst: ${stripUnicodeForPDF(edu.institution)}`, col1Width + 10, col2Y);
             col2Y += 4;
             
             pdf.setFont('helvetica', 'normal');
             pdf.setTextColor(...lightTextColor);
-            pdf.text(`📅 ${edu.period}`, col1Width + 10, col2Y);
+            pdf.text(`Date: ${stripUnicodeForPDF(edu.period)}`, col1Width + 10, col2Y);
             col2Y += 4;
             
             // Display grades for college
             if (edu.grades) {
               edu.grades.forEach(grade => {
-                pdf.text(`📊 ${grade.semester}: GPA ${grade.gpa}`, col1Width + 10, col2Y);
+                pdf.text(`GPA: ${stripUnicodeForPDF(grade.semester)}: ${grade.gpa}`, col1Width + 10, col2Y);
                 col2Y += 4;
               });
             } else {
-              pdf.text(edu.grade, col1Width + 10, col2Y);
+              pdf.text(stripUnicodeForPDF(edu.grade), col1Width + 10, col2Y);
               col2Y += 4;
             }
             
             pdf.setFontSize(7);
             pdf.setTextColor(...textColor);
-            const descLines = pdf.splitTextToSize(edu.description, col2Width - 15);
+            const descLines = pdf.splitTextToSize(stripUnicodeForPDF(edu.description), col2Width - 15);
             pdf.text(descLines, col1Width + 10, col2Y);
             col2Y += descLines.length * 3 + 3;
             
             // Achievements
             pdf.setTextColor(...secondaryColor);
             edu.achievements.forEach(achievement => {
-              pdf.text(`🏆 ${achievement}`, col1Width + 12, col2Y);
+              pdf.text(`Ach: ${stripUnicodeForPDF(achievement)}`, col1Width + 12, col2Y);
               col2Y += 3;
             });
             
@@ -528,7 +556,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
             pdf.setFontSize(8);
             pdf.setFont('helvetica', 'normal');
             pdf.setTextColor(...textColor);
-            pdf.text(`${lang.icon} ${lang.language}`, col1Width + 10, col2Y);
+            pdf.text(`${lang.icon} ${stripUnicodeForPDF(lang.language)}`, col1Width + 10, col2Y);
             
             pdf.setDrawColor(229, 231, 235);
             pdf.setLineWidth(2);
@@ -540,7 +568,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
             pdf.line(col1Width + 35, col2Y - 1, col1Width + 35 + progressWidth, col2Y - 1);
             
             pdf.setTextColor(...lightTextColor);
-            pdf.text(lang.proficiency, col1Width + 58, col2Y);
+            pdf.text(stripUnicodeForPDF(lang.proficiency), col1Width + 58, col2Y);
             col2Y += 6;
           });
 
@@ -552,12 +580,12 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
               pdf.setFontSize(8);
               pdf.setFont('helvetica', 'bold');
               pdf.setTextColor(...primaryColor);
-              pdf.text(`📜 ${cert.name}`, col1Width + 10, col2Y);
+              pdf.text(`Cert: ${stripUnicodeForPDF(cert.name)}`, col1Width + 10, col2Y);
               col2Y += 4;
               
               pdf.setFont('helvetica', 'normal');
               pdf.setTextColor(...lightTextColor);
-              pdf.text(`${cert.issuer} | 📅 ${cert.date}`, col1Width + 10, col2Y);
+              pdf.text(`${stripUnicodeForPDF(cert.issuer)} | Date: ${stripUnicodeForPDF(cert.date)}`, col1Width + 10, col2Y);
               col2Y += 6;
             });
           }
@@ -570,12 +598,12 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
               pdf.setFontSize(8);
               pdf.setFont('helvetica', 'bold');
               pdf.setTextColor(...primaryColor);
-              pdf.text(`${hobby.icon} ${hobby.name}`, col1Width + 10, col2Y);
+              pdf.text(`${hobby.icon} ${stripUnicodeForPDF(hobby.name)}`, col1Width + 10, col2Y);
               col2Y += 4;
               
               pdf.setFont('helvetica', 'normal');
               pdf.setTextColor(...textColor);
-              const descLines = pdf.splitTextToSize(hobby.description, col2Width - 15);
+              const descLines = pdf.splitTextToSize(stripUnicodeForPDF(hobby.description), col2Width - 15);
               pdf.text(descLines, col1Width + 10, col2Y);
               col2Y += descLines.length * 3 + 6;
             });
@@ -586,15 +614,15 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           pdf.rect(0, pageHeight - 15, pageWidth, 15, 'F');
           pdf.setFontSize(7);
           pdf.setTextColor(255, 255, 255);
-          pdf.text(`📄 Professional CV generated on ${new Date().toLocaleDateString('en-US', { 
+          pdf.text(`CV generated on ${new Date().toLocaleDateString('en-US', { 
             year: 'numeric', 
             month: 'long', 
             day: 'numeric' 
-          })} • 🌐 ${cvData.website}`, 
+          })} | ${stripUnicodeForPDF(cvData.website)}`, 
           pageWidth / 2, pageHeight - 8, { align: 'center' });
 
           // Save the PDF
-          pdf.save(`${cvData.fullName.replace(' ', '_')}_Modern_CV.pdf`);
+          pdf.save(`${stripUnicodeForPDF(cvData.fullName.replace(' ', '_'))}_Modern_CV.pdf`);
           
           // Dismiss loading toast and show success
           toast.dismiss(loadingToast);
@@ -656,11 +684,11 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           pdf.setTextColor(255, 255, 255);
           pdf.setFontSize(24);
           pdf.setFont('helvetica', 'bold');
-          pdf.text(cvData.fullName, 20, 15);
+          pdf.text(stripUnicodeForPDF(cvData.fullName), 20, 15);
           
           pdf.setFontSize(10);
           pdf.setFont('helvetica', 'normal');
-          pdf.text("Full-Stack Developer & CSIT Student", 20, 21);
+          pdf.text(stripUnicodeForPDF("Full-Stack Developer & CSIT Student"), 20, 21);
 
           let yPosition = 40;
 
@@ -673,15 +701,15 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           pdf.setTextColor(...darkGray);
           pdf.setFontSize(9);
           pdf.setFont('helvetica', 'bold');
-          pdf.text("📞 CONTACT", 10, 40);
+          pdf.text("CONTACT", 10, 40);
           
           const contactDetails = [
-            `📧 ${cvData.email}`,
-            `📱 ${cvData.phone}`,
-            `📍 ${cvData.location}`,
-            `🌐 ${cvData.website}`,
-            `💻 ${cvData.github}`,
-            `👔 ${cvData.linkedin}`
+            `E: ${stripUnicodeForPDF(cvData.email)}`,
+            `P: ${stripUnicodeForPDF(cvData.phone)}`,
+            `L: ${stripUnicodeForPDF(cvData.location)}`,
+            `W: ${stripUnicodeForPDF(cvData.website)}`,
+            `G: ${stripUnicodeForPDF(cvData.github)}`,
+            `I: ${stripUnicodeForPDF(cvData.linkedin)}`
           ];
           
           pdf.setFont('helvetica', 'normal');
@@ -696,14 +724,14 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           // Languages in sidebar
           pdf.setFont('helvetica', 'bold');
           pdf.setTextColor(...darkGray);
-          pdf.text("🗣️ LANGUAGES", 10, 130);
+          pdf.text("LANGUAGES", 10, 130);
           
           pdf.setFont('helvetica', 'normal');
           cvData.languages.forEach((lang, index) => {
             pdf.setTextColor(...darkGray);
-            pdf.text(`${lang.icon} ${lang.language}`, 10, 137 + (index * 6));
+            pdf.text(`${lang.icon} ${stripUnicodeForPDF(lang.language)}`, 10, 137 + (index * 6));
             pdf.setTextColor(...mediumGray);
-            pdf.text(lang.proficiency, 45, 137 + (index * 6));
+            pdf.text(stripUnicodeForPDF(lang.proficiency), 45, 137 + (index * 6));
           });
 
           // Main content area
@@ -714,7 +742,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           pdf.setTextColor(...darkGray);
           pdf.setFontSize(12);
           pdf.setFont('helvetica', 'bold');
-          pdf.text("📋 PROFESSIONAL SUMMARY", mainX, yPosition);
+          pdf.text("PROFESSIONAL SUMMARY", mainX, yPosition);
           pdf.setDrawColor(...mediumBlue);
           pdf.setLineWidth(0.5);
           pdf.line(mainX, yPosition + 2, mainX + 70, yPosition + 2);
@@ -723,14 +751,14 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           
           pdf.setFontSize(9);
           pdf.setFont('helvetica', 'normal');
-          const summaryLines = pdf.splitTextToSize(cvData.summary, mainWidth);
+          const summaryLines = pdf.splitTextToSize(stripUnicodeForPDF(cvData.summary), mainWidth);
           pdf.text(summaryLines, mainX, yPosition);
           yPosition += summaryLines.length * 4 + 15;
 
           // Technical Skills
           pdf.setFontSize(12);
           pdf.setFont('helvetica', 'bold');
-          pdf.text("⚙️ TECHNICAL SKILLS", mainX, yPosition);
+          pdf.text("TECHNICAL SKILLS", mainX, yPosition);
           pdf.line(mainX, yPosition + 2, mainX + 50, yPosition + 2);
           yPosition += 8;
 
@@ -738,13 +766,13 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
             pdf.setFontSize(10);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(...mediumBlue);
-            pdf.text(`🔧 ${skillCategory.category}`, mainX, yPosition);
+            pdf.text(`Skill: ${stripUnicodeForPDF(skillCategory.category)}`, mainX, yPosition);
             yPosition += 5;
             
             pdf.setFontSize(9);
             pdf.setFont('helvetica', 'normal');
             pdf.setTextColor(...darkGray);
-            const skillsText = skillCategory.skills.map(s => `${s.icon} ${s.name} (${s.proficiency}%)`).join(' • ');
+            const skillsText = skillCategory.skills.map(s => `${s.icon} ${stripUnicodeForPDF(s.name)} (${s.proficiency}%)`).join(' • ');
             const skillLines = pdf.splitTextToSize(skillsText, mainWidth);
             pdf.text(skillLines, mainX, yPosition);
             yPosition += skillLines.length * 4 + 5;
@@ -755,7 +783,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           // Professional Experience
           pdf.setFontSize(12);
           pdf.setFont('helvetica', 'bold');
-          pdf.text("💼 PROFESSIONAL EXPERIENCE", mainX, yPosition);
+          pdf.text("PROFESSIONAL EXPERIENCE", mainX, yPosition);
           pdf.line(mainX, yPosition + 2, mainX + 80, yPosition + 2);
           yPosition += 10;
 
@@ -763,18 +791,18 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
             pdf.setFontSize(10);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(...darkBlue);
-            pdf.text(`🏢 ${exp.position}`, mainX, yPosition);
+            pdf.text(`Exp: ${stripUnicodeForPDF(exp.position)}`, mainX, yPosition);
             yPosition += 4;
             
             pdf.setFontSize(9);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(...mediumBlue);
-            pdf.text(`${exp.company} | 📅 ${exp.period} | 📍 ${exp.location}`, mainX, yPosition);
+            pdf.text(`${stripUnicodeForPDF(exp.company)} | Date: ${stripUnicodeForPDF(exp.period)} | Loc: ${stripUnicodeForPDF(exp.location)}`, mainX, yPosition);
             yPosition += 4;
             
             pdf.setFont('helvetica', 'normal');
             pdf.setTextColor(...darkGray);
-            const descLines = pdf.splitTextToSize(exp.description, mainWidth);
+            const descLines = pdf.splitTextToSize(stripUnicodeForPDF(exp.description), mainWidth);
             pdf.text(descLines, mainX, yPosition);
             yPosition += descLines.length * 4 + 3;
             
@@ -782,7 +810,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
             pdf.setFontSize(8);
             pdf.setTextColor(...mediumGray);
             exp.responsibilities.forEach(resp => {
-              pdf.text(`✅ ${resp}`, mainX + 2, yPosition);
+              pdf.text(`✓ ${stripUnicodeForPDF(resp)}`, mainX + 2, yPosition);
               yPosition += 3.5;
             });
             
@@ -797,7 +825,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
 
           pdf.setFontSize(12);
           pdf.setFont('helvetica', 'bold');
-          pdf.text("🎓 EDUCATION", mainX, yPosition);
+          pdf.text("EDUCATION", mainX, yPosition);
           pdf.line(mainX, yPosition + 2, mainX + 35, yPosition + 2);
           yPosition += 10;
 
@@ -805,13 +833,13 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
             pdf.setFontSize(10);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(...darkBlue);
-            pdf.text(edu.degree, mainX, yPosition);
+            pdf.text(stripUnicodeForPDF(edu.degree), mainX, yPosition);
             yPosition += 4;
             
             pdf.setFontSize(9);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(...mediumBlue);
-            pdf.text(`🏛️ ${edu.institution} | 📅 ${edu.period}`, mainX, yPosition);
+            pdf.text(`Inst: ${stripUnicodeForPDF(edu.institution)} | Date: ${stripUnicodeForPDF(edu.period)}`, mainX, yPosition);
             yPosition += 4;
             
             // Display grades for college
@@ -819,16 +847,16 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
               pdf.setFont('helvetica', 'normal');
               pdf.setTextColor(...mediumGray);
               edu.grades.forEach(grade => {
-                pdf.text(`📊 ${grade.semester}: GPA ${grade.gpa}`, mainX, yPosition);
+                pdf.text(`GPA: ${stripUnicodeForPDF(grade.semester)}: ${grade.gpa}`, mainX, yPosition);
                 yPosition += 4;
               });
             } else {
-              pdf.text(`📈 ${edu.grade}`, mainX, yPosition);
+              pdf.text(`Grade: ${stripUnicodeForPDF(edu.grade)}`, mainX, yPosition);
               yPosition += 4;
             }
             
             pdf.setTextColor(...darkGray);
-            const descLines = pdf.splitTextToSize(edu.description, mainWidth);
+            const descLines = pdf.splitTextToSize(stripUnicodeForPDF(edu.description), mainWidth);
             pdf.text(descLines, mainX, yPosition);
             yPosition += descLines.length * 4 + 3;
             
@@ -836,7 +864,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
             pdf.setFontSize(8);
             pdf.setTextColor(...mediumBlue);
             edu.achievements.forEach(achievement => {
-              pdf.text(`🏆 ${achievement}`, mainX + 2, yPosition);
+              pdf.text(`Ach: ${stripUnicodeForPDF(achievement)}`, mainX + 2, yPosition);
               yPosition += 3.5;
             });
             
@@ -846,10 +874,10 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           // Footer
           pdf.setFontSize(8);
           pdf.setTextColor(...mediumGray);
-          pdf.text(`🔒 Confidential - Generated for professional purposes on 📅 ${new Date().toLocaleDateString()} • 🌐 ${cvData.website}`, 
+          pdf.text(`Confidential - Generated for professional purposes on ${new Date().toLocaleDateString()} | ${stripUnicodeForPDF(cvData.website)}`, 
                   pageWidth / 2, pageHeight - 10, { align: 'center' });
 
-          pdf.save(`${cvData.fullName.replace(' ', '_')}_Executive_CV.pdf`);
+          pdf.save(`${stripUnicodeForPDF(cvData.fullName.replace(' ', '_'))}_Executive_CV.pdf`);
           
           // Dismiss loading toast and show success
           toast.dismiss(loadingToast);
@@ -903,31 +931,31 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           pdf.setTextColor(255, 255, 255);
           pdf.setFontSize(22);
           pdf.setFont('helvetica', 'bold');
-          pdf.text(cvData.fullName, 20, 20);
+          pdf.text(stripUnicodeForPDF(cvData.fullName), 20, 20);
           
           pdf.setFontSize(10);
           pdf.setFont('helvetica', 'normal');
-          pdf.text("Full-Stack Developer | CSIT Student", 20, 26);
+          pdf.text(stripUnicodeForPDF("Full-Stack Developer | CSIT Student"), 20, 26);
           
           let yPosition = 45;
 
-          // Quick contact info with icons
+          // Quick contact info with ASCII icons
           pdf.setTextColor(0, 0, 0);
           pdf.setFontSize(8);
-          pdf.text(`📧 ${cvData.email} | 📱 ${cvData.phone} | 📍 ${cvData.location}`, 20, yPosition);
+          pdf.text(`E: ${stripUnicodeForPDF(cvData.email)} | P: ${stripUnicodeForPDF(cvData.phone)} | L: ${stripUnicodeForPDF(cvData.location)}`, 20, yPosition);
           yPosition += 5;
-          pdf.text(`🌐 ${cvData.website} | 💼 ${cvData.linkedin} | 💻 ${cvData.github}`, 20, yPosition);
+          pdf.text(`W: ${stripUnicodeForPDF(cvData.website)} | I: ${stripUnicodeForPDF(cvData.linkedin)} | G: ${stripUnicodeForPDF(cvData.github)}`, 20, yPosition);
           yPosition += 12;
 
           // Summary
           pdf.setFontSize(10);
           pdf.setFont('helvetica', 'bold');
-          pdf.text("📋 PROFILE", 20, yPosition);
+          pdf.text("PROFILE", 20, yPosition);
           yPosition += 6;
           
           pdf.setFontSize(8);
           pdf.setFont('helvetica', 'normal');
-          const summaryLines = pdf.splitTextToSize(cvData.summary, pageWidth - 40);
+          const summaryLines = pdf.splitTextToSize(stripUnicodeForPDF(cvData.summary), pageWidth - 40);
           pdf.text(summaryLines, 20, yPosition);
           yPosition += summaryLines.length * 3.5 + 12;
 
@@ -938,17 +966,17 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
 
           pdf.setFontSize(10);
           pdf.setFont('helvetica', 'bold');
-          pdf.text("⚙️ TECHNICAL SKILLS", 20, leftY);
+          pdf.text("TECHNICAL SKILLS", 20, leftY);
           leftY += 8;
 
           cvData.technicalSkills.forEach(category => {
             pdf.setFontSize(8);
             pdf.setFont('helvetica', 'bold');
-            pdf.text(`🔧 ${category.category}:`, 20, leftY);
+            pdf.text(`Skill: ${stripUnicodeForPDF(category.category)}`, 20, leftY);
             leftY += 4;
             
             pdf.setFont('helvetica', 'normal');
-            const skillsText = category.skills.map(s => `${s.icon} ${s.name}`).join(', ');
+            const skillsText = category.skills.map(s => `${s.icon} ${stripUnicodeForPDF(s.name)}`).join(', ');
             const skillLines = pdf.splitTextToSize(skillsText, colWidth - 10);
             pdf.text(skillLines, 25, leftY);
             leftY += skillLines.length * 3.5 + 4;
@@ -957,27 +985,27 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           // Education
           pdf.setFontSize(10);
           pdf.setFont('helvetica', 'bold');
-          pdf.text("🎓 EDUCATION", 20 + colWidth + 10, rightY);
+          pdf.text("EDUCATION", 20 + colWidth + 10, rightY);
           rightY += 8;
 
           cvData.education.forEach(edu => {
             pdf.setFontSize(8);
             pdf.setFont('helvetica', 'bold');
-            pdf.text(`🏛️ ${edu.institution}`, 20 + colWidth + 10, rightY);
+            pdf.text(`Inst: ${stripUnicodeForPDF(edu.institution)}`, 20 + colWidth + 10, rightY);
             rightY += 4;
             
             pdf.setFont('helvetica', 'normal');
-            pdf.text(`${edu.degree} (📅 ${edu.period})`, 20 + colWidth + 10, rightY);
+            pdf.text(`${stripUnicodeForPDF(edu.degree)} (Date: ${stripUnicodeForPDF(edu.period)})`, 20 + colWidth + 10, rightY);
             rightY += 4;
             
             // Display grades for college
             if (edu.grades) {
               edu.grades.forEach(grade => {
-                pdf.text(`📊 ${grade.semester}: GPA ${grade.gpa}`, 20 + colWidth + 10, rightY);
+                pdf.text(`GPA: ${stripUnicodeForPDF(grade.semester)}: ${grade.gpa}`, 20 + colWidth + 10, rightY);
                 rightY += 4;
               });
             } else {
-              pdf.text(edu.grade, 20 + colWidth + 10, rightY);
+              pdf.text(stripUnicodeForPDF(edu.grade), 20 + colWidth + 10, rightY);
               rightY += 4;
             }
             rightY += 4;
@@ -989,17 +1017,17 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           if (yPosition < pageHeight - 50) {
             pdf.setFontSize(10);
             pdf.setFont('helvetica', 'bold');
-            pdf.text("🚀 PROJECTS", 20, yPosition);
+            pdf.text("PROJECTS", 20, yPosition);
             yPosition += 8;
 
             cvData.projects.slice(0, 2).forEach(project => {
               pdf.setFontSize(8);
               pdf.setFont('helvetica', 'bold');
-              pdf.text(`🔧 ${project.name}`, 20, yPosition);
+              pdf.text(`Proj: ${stripUnicodeForPDF(project.name)}`, 20, yPosition);
               yPosition += 4;
               
               pdf.setFont('helvetica', 'normal');
-              pdf.text(`⚙️ Tech: ${project.technologies.join(', ')}`, 25, yPosition);
+              pdf.text(`Tech: ${stripUnicodeForPDF(project.technologies.join(', '))}`, 25, yPosition);
               yPosition += 6;
             });
           }
@@ -1007,10 +1035,10 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           // Footer
           pdf.setFontSize(7);
           pdf.setTextColor(100, 100, 100);
-          pdf.text(`Generated on ${new Date().toLocaleDateString()} • ${cvData.website}`, 
+          pdf.text(`Generated on ${new Date().toLocaleDateString()} | ${stripUnicodeForPDF(cvData.website)}`, 
                   pageWidth / 2, pageHeight - 10, { align: 'center' });
 
-          pdf.save(`${cvData.fullName.replace(' ', '_')}_Quick_CV.pdf`);
+          pdf.save(`${stripUnicodeForPDF(cvData.fullName.replace(' ', '_'))}_Quick_CV.pdf`);
           
           toast.dismiss(loadingToast);
           setIsGenerating(false);
@@ -1033,7 +1061,9 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
   const handleGenerateCV = () => {
     if (isGenerating) return; // Prevent multiple clicks
     
-    if (activeTemplate === "modern") {
+    if (activeTemplate === "quick") {
+      generateQuickCV();
+    } else if (activeTemplate === "modern") {
       generateModernCV();
     } else {
       generateProfessionalCV();
@@ -1065,7 +1095,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
           ...prev,
           technicalSkills: [...prev.technicalSkills, {
             category: newSkill.category,
-            icon: "⭐",
+            icon: "•",
             skills: [{ 
               name: newSkill.name, 
               proficiency: newSkill.proficiency,
@@ -1075,19 +1105,32 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
         }));
       }
       
-      setNewSkill({ category: "", name: "", proficiency: 70, icon: "⭐" });
+      setNewSkill({ category: "", name: "", proficiency: 70, icon: "•" });
     }
   };
 
   // Get icon component for display in UI (not for PDF)
   const getCategoryIconComponent = (icon) => {
     switch(icon) {
-      case "🎨": return <Layout className="w-5 h-5 text-blue-500" />;
-      case "⚙️": return <ServerIcon className="w-5 h-5 text-green-500" />;
-      case "💾": return <DatabaseIcon className="w-5 h-5 text-purple-500" />;
-      case "🛠️": return <Terminal className="w-5 h-5 text-orange-500" />;
+      case "■": return <Layout className="w-5 h-5 text-blue-500" />;
+      case "●": return <ServerIcon className="w-5 h-5 text-green-500" />;
+      case "▼": return <DatabaseIcon className="w-5 h-5 text-purple-500" />;
+      case "◼": return <Terminal className="w-5 h-5 text-orange-500" />;
       default: return <Star className="w-5 h-5 text-yellow-500" />;
     }
+  };
+
+  // Convert ASCII icon back to emoji for UI display
+  const getUIEmojiForSkill = (asciiIcon) => {
+    const emojiMap = {
+      '■': '🎨', '●': '⚙️', '▼': '💾', '◼': '🛠️',
+      'H': '🌐', 'C': '🎨', 'JS': '⚡', 'R': '⚛️', 'T': '🎯',
+      'N': '🟢', 'P': '🐍', 'J': '☕', 'SQL': '🐬', 'M': '🍃',
+      'G': '📊', 'VS': '👨‍💻', 'F': '🎨', 'FB': '🔥',
+      'EN': '🇬🇧', 'NP': '🇳🇵', 'HI': '🇮🇳',
+      'OS': '🌐', 'TB': '📚', 'PS': '🧩'
+    };
+    return emojiMap[asciiIcon] || asciiIcon;
   };
 
   if (!isOpen) return null;
@@ -1465,7 +1508,7 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
                       {skillCategory.skills.map((skill, skillIndex) => (
                         <div key={skillIndex} className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
                           <span className="font-medium text-sm flex items-center gap-2">
-                            <span className="text-lg">{skill.icon}</span>
+                            <span className="text-lg">{getUIEmojiForSkill(skill.icon)}</span>
                             {skill.name}
                           </span>
                           <div className="flex items-center gap-2">
@@ -1524,10 +1567,10 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
                   </div>
                   <div>
                     <Label className="text-xs flex items-center gap-1">
-                      <Star className="w-3 h-3" /> Icon
+                      <Star className="w-3 h-3" /> Icon (ASCII)
                     </Label>
                     <Input
-                      placeholder="e.g., ⚛️"
+                      placeholder="e.g., R (for React)"
                       value={newSkill.icon}
                       onChange={(e) => setNewSkill(prev => ({ ...prev, icon: e.target.value }))}
                       className="text-sm border-slate-300 dark:border-slate-600"
@@ -1553,6 +1596,9 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
                     </Button>
                   </div>
                 </div>
+                <p className="text-xs text-slate-500 mt-2">
+                  Note: Use ASCII characters (single letters/symbols) for PDF compatibility
+                </p>
               </div>
             </div>
           </div>
@@ -1605,21 +1651,6 @@ const AdvancedCVGeneratorModal = ({ isOpen, onClose, profileImage }) => {
     </div>
   );
 };
-
-// Add missing Clock and Eye icons
-const Clock = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <circle cx="12" cy="12" r="10" />
-    <polyline points="12 6 12 12 16 14" />
-  </svg>
-);
-
-const Eye = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-);
 
 // Rest of the components (SkillBar, SkillCategory, About) remain the same...
 
