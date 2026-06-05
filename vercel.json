@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_FIREBASE_API_KEY": "AIzaSyC6WVQRWsrdfE1xsqZvqI_0F5-R6Dhr2IM",
+    "VITE_FIREBASE_AUTH_DOMAIN": "portfolio-b7a03.firebaseapp.com",
+    "VITE_FIREBASE_PROJECT_ID": "portfolio-b7a03",
+    "VITE_FIREBASE_STORAGE_BUCKET": "portfolio-b7a03.firebasestorage.app",
+    "VITE_FIREBASE_MESSAGING_SENDER_ID": "322493562783",
+    "VITE_FIREBASE_APP_ID": "1:322493562783:web:5aea46f95fc49d425dc7aa"
+  }
+}
