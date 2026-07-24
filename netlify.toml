@@ -3,6 +3,10 @@
   publish = "dist"
 
 [[redirects]]
+  from = "/.well-known/*"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
