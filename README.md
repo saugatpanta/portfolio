@@ -13,7 +13,7 @@ Aspiring full-stack developer currently pursuing Bachelor's in Computer Science 
 
 ## 🎯 About Me
 
-- 🎓 **Currently:** 3rd Semester BSc CSIT student at Apex College, Kathmandu
+- 🎓 **Currently:** 4th Semester BCSIT student at Apex College, Kathmandu
 - 📈 **Academic Performance:** 1st Sem: GPA 3.08 → 2nd Sem: GPA 3.59 (Consistent improvement)
 - 💼 **Experience:** Freelance Web Developer & Programming Tutor
 - 🌱 **Currently Learning:** Advanced React, Node.js, Database Management
