@@ -70,7 +70,7 @@ Task management application with full CRUD operations, categorization, and local
 
 ## 📚 Education
 
-### **🎓 Bachelor of Science in Computer Science and Information Technology**
+### **🎓 Bachelor Computer Science and Information Technology**
 **Apex College, Kathmandu** | *2024 - Present*  
 - **Current:** 3rd Semester
 - **Grades:** 1st Sem: GPA 3.08 | 2nd Sem: GPA 3.59
